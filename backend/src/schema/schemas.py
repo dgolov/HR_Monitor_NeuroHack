@@ -1,8 +1,7 @@
 from datetime import datetime
 
 import uuid
-from pydantic import BaseModel
-from pydantic.v1 import UUID4
+from pydantic import BaseModel, UUID4
 
 
 class User(BaseModel):
@@ -60,12 +59,13 @@ class VacancyFile(BaseModel):
     link: str
     created_at: datetime
 
+
 class VacancyFileCreate(BaseModel):
-    uuid: UUID4 = uuid.uuid4()
     name: str
     description: str
     link: str
     created_at: datetime = datetime.now()
+
 
 class Interview(BaseModel):
     id : int
@@ -84,8 +84,6 @@ class Interview(BaseModel):
 
 
 class InterviewCreate(BaseModel):
-    uuid : UUID4 = uuid.uuid4()
-    title : str
     description : str
     candidate_id : int
     type : str
@@ -110,8 +108,6 @@ class Candidate(BaseModel):
 
 
 class CandidateCreate(BaseModel):
-    id: int
-    uuid: UUID4 = uuid.uuid4()
     name: str
     is_referral: bool = False
     other_info: str

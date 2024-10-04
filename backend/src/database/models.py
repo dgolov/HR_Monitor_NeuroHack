@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from sqlalchemy import (Boolean, Column, Date,
                         ForeignKey, Integer, String,
                         JSON, UUID)
@@ -9,8 +11,8 @@ Base = declarative_base()
 
 class Candidate(Base):
     __tablename__ = "candidate"
-    id = Column(Integer, primary_key=True)
-    uuid = Column(UUID, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(UUID, unique=True, default=uuid4)
     name = Column(String())
     is_referral = Column(Boolean, default=False)
     other_info = Column(JSON)
@@ -20,8 +22,8 @@ class Candidate(Base):
     
 class Vacancy(Base):
     __tablename__ = "vacancy"
-    id = Column(Integer, primary_key=True)
-    uuid = Column(UUID, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(UUID, unique=True, default=uuid4)
     title = Column(String())
     description = Column(String())
     status = Column(String())
@@ -36,8 +38,8 @@ class Vacancy(Base):
     
 class VacancyFile(Base):
     __tablename__ = "vacancy_file"
-    id = Column(Integer, primary_key=True)
-    uuid = Column(UUID, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(UUID, unique=True, default=uuid4)
     name = Column(String())
     description = Column(String())
     link = Column(String())
@@ -46,8 +48,8 @@ class VacancyFile(Base):
 
 class User(Base):
     __tablename__ = "user"
-    id = Column(Integer, primary_key=True)
-    uuid = Column(UUID, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(UUID, unique=True, default=uuid4)
     password_hash = Column(String())
     name = Column(String())
     email = Column(String(), unique=True)
@@ -59,8 +61,8 @@ class User(Base):
     
 class Interview(Base):
     __tablename__ = "interview"
-    id = Column(Integer, primary_key=True)
-    uuid = Column(UUID, unique=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(UUID, unique=True, default=uuid4)
     title = Column(String())
     description = Column(String())
     candidate_id = Column(Integer, ForeignKey("candidate.id"))
@@ -74,4 +76,15 @@ class Interview(Base):
     date_end_at = Column(Date)
     
     
-    
+class RecruiterTask(Base):
+    __tablename__ = "recruiter_task"
+    id = Column(Integer, primary_key=True)
+    uuid = Column(UUID, unique=True)
+    type = Column(String())
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    description = Column(String())
+    status = Column(String())
+    priority = Column(Integer)
+    created_at = Column(Date)
+    started_at = Column(Date)
+    closed_at = Column(Date)

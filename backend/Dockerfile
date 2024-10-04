@@ -15,6 +15,8 @@ RUN poetry install --no-root --no-dev
 
 ENV PYTHONUNBUFFERED=1
 
+RUN chmod +x /app/run.sh
+
 EXPOSE 8000
 
-CMD ["python", "-m", "src"]
+CMD ["/app/run.sh"]

@@ -5,7 +5,7 @@ services:
     container_name: db_container
     image: postgres:14
     env_file:
-      - ./backend/.env
+      - ./backend/.env.prod
     ports:
       - "5432:5432"
     volumes:
@@ -15,15 +15,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  mongo:
-    container_name: mongo_container
-    build:
-      context: ./mongo
-      dockerfile: mongo.dockerfile
-    volumes:
-      - ./mongo/data:/data/db
-    ports:
-      - "27017:27017"
+#  mongo:
+#    container_name: mongo_container
+#    build:
+#      context: ./mongo
+#      dockerfile: mongo.dockerfile
+#    volumes:
+#      - ./mongo/data:/data/db
+#    ports:
+#      - "27017:27017"
 
   backend:
     container_name: backend_container
@@ -31,7 +31,8 @@ services:
       TZ: "Europe/Moscow"
     image: backend:0.1.0
     volumes:
-      - ./backend/migrations/versions:/backend/migrations/versions
+      - ./backend/alembic/versions:/app/alembic/versions
+      - ./backend/logs:/app/logs
     env_file:
       - ./backend/.env
     build:
@@ -51,7 +52,7 @@ services:
     volumes:
       - ./static/:/static
     ports:
-      - "88:88"
+      - "80:80"
     depends_on:
       - backend
 
