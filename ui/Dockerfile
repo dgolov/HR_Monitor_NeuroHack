@@ -1,3 +1,10 @@
-FROM ubuntu:latest
+FROM node:18.15.0
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+ENV PATH /app/node_modules/.bin:$PATH
+
+
+COPY . /app
+
+RUN npm run build
