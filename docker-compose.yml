@@ -15,6 +15,16 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  mongo:
+    container_name: mongo_container
+    build:
+      context: ./mongo
+      dockerfile: mongo.dockerfile
+    volumes:
+      - ./mongo/data:/data/db
+    ports:
+      - "27017:27017"
+
   backend:
     container_name: backend_container
     environment:
