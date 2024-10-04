@@ -1,5 +1,5 @@
 from src.database import models
-from src.api import schemas
+from src.schema import schemas
 
 class Repository:
     user = models.User
