@@ -43,5 +43,17 @@ services:
       - db
     restart: always
 
+  nginx:
+    container_name: nginx_container
+    build:
+      context: ./nginx
+      dockerfile: nginx.dockerfile
+    volumes:
+      - ./static/:/static
+    ports:
+      - "88:88"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
