@@ -1,4 +1,5 @@
 import os
+import logging
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,3 +15,19 @@ class Settings(BaseSettings):
 
 
 app_config = Settings()
+
+log_directory = './logs'
+
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(os.path.join(log_directory, "app.log")),
+        logging.StreamHandler()
+    ]
+)
+
+log = logging.getLogger(__name__)
