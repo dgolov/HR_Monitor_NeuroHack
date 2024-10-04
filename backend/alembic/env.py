@@ -18,8 +18,8 @@ if app_config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from backend.database.models import Base
-from backend.settings import app_config
+from src.database.models import Base
+from src.settings import app_config
 
 target_metadata = Base.metadata
 app_config.set_main_option("sqlalchemy.url", app_config.DATABASE_URL)
