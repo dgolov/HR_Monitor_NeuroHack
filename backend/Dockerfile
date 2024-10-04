@@ -17,4 +17,5 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
+RUN alembic upgrade head
 CMD ["python", "-m", "src"]
