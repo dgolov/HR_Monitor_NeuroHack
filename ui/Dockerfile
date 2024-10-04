@@ -5,6 +5,7 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 
-COPY . /app
+COPY ./hacaton /app
 
+RUN npm install
 RUN npm run build
