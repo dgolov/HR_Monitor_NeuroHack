@@ -12,7 +12,7 @@ class Candidate(Base):
     id = Column(Integer, primary_key=True)
     uuid = Column(UUID, unique=True)
     name = Column(String())
-    is_referal = Column(Boolean, default=False)
+    is_referral = Column(Boolean, default=False)
     other_info = Column(JSON)
     resume_link = Column(String())
     status = Column(String())
@@ -25,6 +25,7 @@ class Vacancy(Base):
     title = Column(String())
     description = Column(String())
     status = Column(String())
+    created_at = Column(Date)
     open_at = Column(Date)
     updated_at = Column(Date)
     close_at = Column(Date)
@@ -36,6 +37,7 @@ class Vacancy(Base):
 class VacancyFile(Base):
     __tablename__ = "vacancy_file"
     id = Column(Integer, primary_key=True)
+    uuid = Column(UUID, unique=True)
     name = Column(String())
     description = Column(String())
     link = Column(String())
