@@ -74,4 +74,15 @@ class Interview(Base):
     date_end_at = Column(Date)
     
     
-    
+class RecruiterTask(Base):
+    __tablename__ = "recruiter_task"
+    id = Column(Integer, primary_key=True)
+    uuid = Column(UUID, unique=True)
+    type = Column(String())
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    description = Column(String())
+    status = Column(String())
+    priority = Column(Integer)
+    created_at = Column(Date)
+    started_at = Column(Date)
+    closed_at = Column(Date)
