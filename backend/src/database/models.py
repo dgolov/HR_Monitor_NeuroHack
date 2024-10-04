@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String, JSON
+from sqlalchemy import (Boolean, Column, Date,
+                        ForeignKey, Integer, String,
+                        JSON, UUID)
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -8,7 +10,7 @@ Base = declarative_base()
 class Candidate(Base):
     __tablename__ = "candidate"
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(), unique=True)
+    uuid = Column(UUID, unique=True)
     name = Column(String())
     is_referal = Column(Boolean, default=False)
     other_info = Column(JSON)
@@ -19,7 +21,7 @@ class Candidate(Base):
 class Vacancy(Base):
     __tablename__ = "vacancy"
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(), unique=True)
+    uuid = Column(UUID, unique=True)
     title = Column(String())
     description = Column(String())
     status = Column(String())
@@ -43,7 +45,7 @@ class VacancyFile(Base):
 class User(Base):
     __tablename__ = "user"
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(), unique=True)
+    uuid = Column(UUID, unique=True)
     password_hash = Column(String())
     name = Column(String())
     email = Column(String(), unique=True)
@@ -56,7 +58,7 @@ class User(Base):
 class Interview(Base):
     __tablename__ = "interview"
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(), unique=True)
+    uuid = Column(UUID, unique=True)
     title = Column(String())
     description = Column(String())
     candidate_id = Column(Integer, ForeignKey("candidate.id"))
