@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from src.api.v1 import candidates_routes, interviews_routes, user_routes, vacancies_routes, vacancy_files_routes
 
+from ..settings import log
 
 router = APIRouter()
 
@@ -13,4 +14,5 @@ router.include_router(vacancy_files_routes.router, tags=["vacancy_files"])
 
 @router.get("/health")
 def health_check():
+    log.info('healthcheck')
     return {"message": "Server is running"}
