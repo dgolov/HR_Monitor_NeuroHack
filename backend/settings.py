@@ -10,4 +10,4 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://user:password@localhost/dbname"
 
 
-config = Settings()
+app_config = Settings()
