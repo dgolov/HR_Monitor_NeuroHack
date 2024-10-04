@@ -32,4 +32,4 @@ logging.basicConfig(
     ]
 )
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger("backend")
