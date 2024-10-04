@@ -31,7 +31,7 @@ services:
       TZ: "Europe/Moscow"
     image: backend:0.1.0
     volumes:
-      - ./backend/migrations/versions:/backend/migrations/versions
+      - ./backend/alembic/versions:/app/alembic/versions
     env_file:
       - ./backend/.env
     build:
