@@ -231,9 +231,9 @@ class Repository(RepositoryBase):
 
     async def get_screen_time_data(
         self,
-        recruiter_name: str | None,
-        date_start: datetime | None,
-        date_end: datetime | None,
+        recruiter_name: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
         recruiter_id: int | None = None,
     ) -> List[models.ScreenTimeMetrics]:
         query = select(self.screen_time)
@@ -253,13 +253,16 @@ class Repository(RepositoryBase):
 
     async def get_hire_quality_data(
         self,
-        recruiter_name: str | None,
-        date_start: datetime | None,
-        date_end: datetime | None,
+        recruiter_name: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        recruiter_id: int | None = None,
     ) -> List[models.HireQualityMetrics]:
         query = select(self.hire_quality)
         if recruiter_name:
             query = query.where(self.hire_quality.recruiter_name == recruiter_name)
+        elif recruiter_id:
+            query = query.join(self.user).where(self.user.id == recruiter_id)
         if date_start and date_end:
             query = query.where(
                 and_(

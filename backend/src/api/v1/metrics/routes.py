@@ -72,6 +72,7 @@ async def screen_time(
 @router.get("/hire-quality")
 async def hire_quality(
     recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
     repository: Repository = repo_dep,
@@ -80,7 +81,7 @@ async def hire_quality(
 
     Считается как средняя стоимость закрытия вакансии деленная на кол-во отработанных дней сотрудником.
     """
-    return await repository.get_hire_quality_data(recruiter_name, date_start, date_end)
+    return await repository.get_hire_quality_data(recruiter_name, date_start, date_end, recruiter_id)
 
 
 @router.get("/vacancy-cost")
@@ -94,7 +95,7 @@ async def vacancy_cost(
 
     Пример ответа:
     {
-  "Tiffany Woods": {
+    "Tiffany Woods": {
     "2024": {
       "1": {
         "total_salary": 3839,
@@ -151,10 +152,10 @@ async def vacancy_cost(
     for recruiter_name in grouped_data:
         for year in grouped_data[recruiter_name]:
             for month in grouped_data[recruiter_name][year]:
-                grouped_data[recruiter_name][year][month]["vacancy_cost"] = grouped_data[recruiter_name][year][month][
-                                                                              "total_salary"] / \
-                                                                          grouped_data[recruiter_name][year][month][
-                                                                              "vacancies_count"]
+                grouped_data[recruiter_name][year][month]["vacancy_cost"] = (
+                    grouped_data[recruiter_name][year][month]["total_salary"]
+                    / grouped_data[recruiter_name][year][month]["vacancies_count"]
+                )
     return grouped_data
 
 

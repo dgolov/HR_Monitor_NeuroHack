@@ -108,7 +108,7 @@ class ScreenTimeMetrics(Base):
 class HireQualityMetrics(Base):
     __tablename__ = "hire_quality_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String())
+    recruiter_name = Column(String(), ForeignKey("user.name"))
     month = Column(Date)
     value = Column(Float)
 
