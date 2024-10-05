@@ -54,8 +54,7 @@ class RepositoryBase:
     async def _query_offset(query, offset: int, page: int = 1):
         if not page:
             return query
-        if page < 1:
-            page = 1
+        page = max(page, 1)
         return query.limit(offset).offset(offset * (page - 1))
 
 
@@ -85,9 +84,9 @@ class Repository(RepositoryBase):
         user_model = models.User(**user.model_dump())
         await self._insert_one(user_model)
 
-    async def get_user_salary(self, user_id: int) -> None:
+    async def get_user_salary(self, user_id: int) -> int:
         user = await self.get_user_by_id(user_id)
-        return user.salary if user else 0
+        return int(user.salary) if user else 0
 
     async def get_vacancies(
         self,
