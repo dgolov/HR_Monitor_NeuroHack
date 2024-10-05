@@ -2,7 +2,6 @@ import random
 from datetime import datetime
 from uuid import uuid4
 
-from dotenv import load_dotenv
 from faker import Faker
 
 from src.database.db import async_session_maker
@@ -19,7 +18,6 @@ from src.database.models import (
 from src.settings import logger
 
 
-load_dotenv()
 fake = Faker()
 
 session = async_session_maker()
@@ -162,3 +160,4 @@ async def populate_database() -> None:
 async def generate_bd() -> None:
     await populate_database()
     logger.info("Database populated successfully.")
+    await session.close()
