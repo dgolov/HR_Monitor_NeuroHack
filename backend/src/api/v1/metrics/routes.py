@@ -135,7 +135,7 @@ async def referal_count(repository: Repository = repo_dep):
 
 
 @router.get("/hired_to_rejected")
-async def referal_count(repository: Repository = repo_dep):
+async def hired_to_rejected(repository: Repository = repo_dep):
     hired_candidates = await repository.get_candidates(vacancy_id=None, status='hired')
     rejected_candidates = await repository.get_candidates(vacancy_id=None, status='rejected')
     total_hired = len(hired_candidates) + len(rejected_candidates)
