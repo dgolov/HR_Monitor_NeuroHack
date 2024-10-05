@@ -167,6 +167,7 @@ async def populate_database() -> None:
         session.add(create_interview(candidate_id, recruiter.id, tech_id))
 
     for _ in range(4000):
+        recruiter = random.choice(recruiters)
         session.add(create_hire_quality_metrics(recruiter.name))
 
     for _ in range(4000):
