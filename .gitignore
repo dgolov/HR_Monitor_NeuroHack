@@ -11,6 +11,7 @@ htmlcov
 .cache
 .venv
 .env
+.env.*
 *.log
 
 # Log files
