@@ -16,7 +16,7 @@ router = APIRouter(prefix="/vacancies")
 async def create_vacancy(
     data: schemas.VacancyCreate,
     repository: Repository = repo_dep,
-):
+) -> JSONResponse:
     logger.debug(f"Create vacancy - {data}")
     await repository.create_vacancy(vacancy=data)
     return JSONResponse(
@@ -28,14 +28,14 @@ async def create_vacancy(
 @router.get("/")
 async def get_vacancies(
     candidate_id: int | None = Query(None),
-    type: str | None = Query(None),
+    vtype: str | None = Query(None),
     recruiter_id: int | None = Query(None),
     status: str | None = Query(None),
     created_from: datetime | None = Query(None),
     created_before: datetime | None = Query(None),
 ) -> list[schemas.Vacancy]:
     logger.debug(
-        f"get vacancies called with {candidate_id=}, {type=}, {recruiter_id=}, {status=}, {created_from},"
+        f"get vacancies called with {candidate_id=}, {vtype=}, {recruiter_id=}, {status=}, {created_from},"
         f"{created_before=}",
     )
     # TODO
