@@ -85,6 +85,10 @@ class Repository(RepositoryBase):
         user_model = models.User(**user.model_dump())
         await self._insert_one(user_model)
 
+    async def get_user_salary(self, user_id: int) -> None:
+        user = await self.get_user_by_id(user_id)
+        return user.salary if user else 0
+
     async def get_vacancies(
         self,
         creator_id: Optional[int],
