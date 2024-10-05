@@ -32,3 +32,4 @@ pnpm-debug.log*
 html/
 node_modules
 /dist
+.DS_Store
