@@ -1,7 +1,13 @@
 from fastapi import APIRouter
 
-from src.api.v1 import candidates_routes, interviews_routes, user_routes, vacancies_routes, vacancy_files_routes,\
-    metrics_routes
+from src.api.v1 import (
+    candidates_routes,
+    interviews_routes,
+    metrics_routes,
+    user_routes,
+    vacancies_routes,
+    vacancy_files_routes,
+)
 from src.settings import logger
 
 
