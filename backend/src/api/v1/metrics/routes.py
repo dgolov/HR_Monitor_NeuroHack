@@ -317,18 +317,28 @@ async def get_average_candidate_to_vacancy(
     reference_date: datetime,
     repository: Repository = repo_dep,
 ):
-    """Среднне кол-во откликов на вокансии за 6 месяцев от референс_дэйт"""
+    """Среднне кол-во откликов на закрытую вокансии за 6 месяцев от референс_дэйт"""
     # Вычисляем дату 6 месяцев назад от заданной даты
     six_months_ago = reference_date - timedelta(days=6 * 30)
     # Запрос для получения всех закрытых вакансий за последние 6 месяцев
+    all_recruiters = await repository.get_all_recruiters()
+    average_replays_vacancy_by_recruiter = {}
 
-    closed_vacancies_last_six_month = await repository.get_vacancies(date_start=six_months_ago,
-                                                     date_end=reference_date)
+    for recruiter in all_recruiters:
+        closed_vacancies_last_six_month = await repository.get_vacancies(
+                                                    date_start=six_months_ago,
+                                                    date_end=reference_date,
+                                                    recruiter_id=recruiter.id
+        )
 
-    # Подсчитываем кол-во кандидатов на 1 вакансию
+        # Подсчитываем кол-во кандидатов на 1 вакансию
 
-    all_candidates = [len(await repository.get_candidates(vacancy_id=vacancy.id))
-                         for vacancy in closed_vacancies_last_six_month]
+        all_candidates = [len(await repository.get_candidates(vacancy_id=vacancy.id))
+                             for vacancy in closed_vacancies_last_six_month]
+        try:
+            average_candidate_to_vacancy = sum(all_candidates) / len(closed_vacancies_last_six_month)
+        except ZeroDivisionError:
+            average_candidate_to_vacancy = 0
+        average_replays_vacancy_by_recruiter[recruiter.name] = average_candidate_to_vacancy
 
-    average_candidate_to_vacancy = sum(all_candidates) / len(closed_vacancies_last_six_month)
-    return average_candidate_to_vacancy
+    return average_replays_vacancy_by_recruiter
