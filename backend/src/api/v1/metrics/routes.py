@@ -9,7 +9,7 @@ router = APIRouter(prefix="/metrics")
 
 
 @router.get("/average_hire_time")
-def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
+async def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
     # Группируем вакансии по году и месяцу закрытия
 
     grouped_vacancies = repository.get_grouped_vacancies
