@@ -5,12 +5,13 @@ services:
     container_name: db_container
     image: postgres:14
     env_file:
-      - ./backend/.env.prod
+      - ./backend/.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/logs/app.log:/app/logs/app.log:rw
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
