@@ -164,7 +164,7 @@ class EmployeeCountResponse(BaseModel):
 
 
 class RecruiterTask(BaseModel):
-    uuid: UUID4=uuid.uuid4()
+    uuid: UUID4 = uuid.uuid4()
     type: str
     recruiter_id: int
     description: str
