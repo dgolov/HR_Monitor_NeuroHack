@@ -398,3 +398,7 @@ class Repository(RepositoryBase):
             )
         )
         return await self._all_special(query=query)
+
+    async def get_all_recruiters(self):
+        query = select(self.user).where(self.user.role=="recruiter")
+        return await self._all(query=query)
