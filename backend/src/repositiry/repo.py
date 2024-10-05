@@ -90,14 +90,18 @@ class Repository(RepositoryBase):
 
     async def get_vacancies(
         self,
-        creator_id: Optional[int],
-        status: Optional[str],
+        creator_id: Optional[int] = None,
+        status: Optional[str] = None,
+        filter_by: Optional[dict[str, Any]] = None,
     ) -> List[models.Vacancy]:
         query = select(self.vacancy)
         if creator_id:
             query = query.where(self.vacancy.creator_id == creator_id)
         if status:
             query = query.where(self.vacancy.status == status)
+        if filter_by:
+            filters = {key: value for key, value in filter_by.items() if value}
+            query = query.filter_by(**filters)
         return await self._all(query=query)
 
     async def get_vacancy_by_id(self, vacancy_id: int) -> models.Vacancy:
@@ -146,8 +150,11 @@ class Repository(RepositoryBase):
         interview_model = models.Interview(**interview.model_dump())
         await self._insert_one(interview_model)
 
-    async def get_candidates(self, vacancy_id: Optional[int] = None, status: Optional[str] = None) \
-            -> list[models.Candidate]:
+    async def get_candidates(
+        self,
+        vacancy_id: Optional[int] = None,
+        status: Optional[str] = None,
+    ) -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
             query = query.where(self.candidate.vacancy_id == vacancy_id)

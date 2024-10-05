@@ -33,9 +33,19 @@ async def get_vacancies(
     status: str | None = Query(None),
     created_from: datetime | None = Query(None),
     created_before: datetime | None = Query(None),
+    repository: Repository = repo_dep,
 ) -> list[schemas.Vacancy]:
     logger.debug(
         f"get vacancies called with {candidate_id=}, {vtype=}, {recruiter_id=}, {status=}, {created_from},"
         f"{created_before=}",
     )
-    # TODO
+    return await repository.get_vacancies(
+        filter_by={
+            "candidate_id": candidate_id,
+            "vtype": vtype,
+            "recruiter_id": recruiter_id,
+            "status": status,
+            "created_from": created_from,
+            "created_before": created_before,
+        },
+    )
