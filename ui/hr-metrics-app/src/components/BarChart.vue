@@ -9,7 +9,7 @@
             <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
           </select>
         </div>
-        <div class="card" style="height: 380px;">
+        <div class="card">
           <div class="card-body">
             <h5 class="card-title">{{ chartTitle }}</h5>
             <line-chart
@@ -45,32 +45,31 @@
 import { Line } from 'vue-chartjs';
 import {
   Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
+  BarController,    
+  CategoryScale,   
+  LinearScale,     
   LineElement,
-  PointElement,
-  LinearScale,
-  TimeScale,
-  Filler,
-  BarElement,
-  CategoryScale // Import CategoryScale
+  BarElement,   
+  PointElement,    
+  Title,           
+  Tooltip,     
+  TimeScale,     
+  Legend            
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import { apiUrl } from '@/api';
 
-// Register all necessary components and scales
 ChartJS.register(
+  BarController,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  BarElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
-  LineElement,
-  PointElement,
-  LinearScale,
   TimeScale,
-  Filler,
-  BarElement,
-  CategoryScale // Register CategoryScale
+  Legend
 );
 
 export default {
@@ -169,7 +168,6 @@ export default {
       this.chartTitle = `Количество вакансий за ${this.selectedYear} год`;
     },
     async transformRecruterData() {
-      console.log(this.recruitersData)
       this.formattedPerformanceData = {};
       for (let item of this.recruitersData) {
         if (!this.itemChertRecruter) {
@@ -255,5 +253,6 @@ export default {
 <style scoped>
 .card {
   margin-top: 20px;
+  height: 380px
 }
 </style>
