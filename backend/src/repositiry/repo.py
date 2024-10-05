@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, List, Optional
 
 from fastapi import HTTPException
@@ -67,6 +67,7 @@ class Repository(RepositoryBase):
     candidate = models.Candidate
     screen_time = models.ScreenTimeMetrics
     hire_quality = models.HireQualityMetrics
+    recruiter_task = models.RecruiterTask
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
@@ -266,6 +267,51 @@ class Repository(RepositoryBase):
                 models.Employee.date_fired <= reference_date,
             ),
         )
+        return await self._all(query=query)
+
+    async def get_tasks(self,
+                        start: datetime,
+                        end: datetime,
+                        status: str
+                        ) -> List[models.RecruiterTask]:
+
+        query = select(self.recruiter_task)
+        if start:
+            query = query.where(self.recruiter_task.created_at >= start)
+        else:
+            query = query.where(self.recruiter_task.created_at >= datetime.now()-timedelta(days=90))
+
+        if end:
+            query = query.where(self.recruiter_task.created_at <= end)
+        else:
+            query = query.where(self.recruiter_task.created_at <= datetime.now())
+
+        if status:
+            query = query.where(self.recruiter_task.status == status)
+        return await self._all(query=query)
+
+    async def get_tasks_by_hr_id(self,
+                        start: datetime,
+                        end: datetime,
+                        status: str,
+                        hr_id: int,
+                        order_by: str,
+                        ) -> List[models.RecruiterTask]:
+
+        order_by_columns = {
+            'priority': self.recruiter_task.priority,
+            'created_at': self.recruiter_task.created_at,
+            'status': self.recruiter_task.status
+        }
+
+        query = (select(self.recruiter_task).where(recruiter_id=hr_id).
+                 order_by(order_by_columns.get(order_by)))
+        if start:
+            query = query.where(self.recruiter_task.created_at >= start)
+        if end:
+            query = query.where(self.recruiter_task.created_at <= end)
+        if status:
+            query = query.where(self.recruiter_task.status == status)
         return await self._all(query=query)
 
     async def get_fired_employees_by_month(
