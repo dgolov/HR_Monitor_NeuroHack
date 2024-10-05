@@ -1,10 +1,7 @@
 from typing import Any, List, Optional
 
 from fastapi import HTTPException
-from typing import List, Optional
-
-from fastapi import HTTPException
-from sqlalchemy import Select, extract, func, select
+from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import models
@@ -86,8 +83,7 @@ class Repository(RepositoryBase):
 
     async def create_user(self, user: schemas.UserCreate) -> None:
         user_model = models.User(**user.model_dump())
-        self.session.add(user_model)
-        await self.session.commit()
+        await self._insert_one(user_model)
 
     async def get_vacancies(
         self,
@@ -110,8 +106,7 @@ class Repository(RepositoryBase):
 
     async def create_vacancy(self, vacancy: schemas.VacancyCreate) -> None:
         vacancy_model = models.Vacancy(**vacancy.model_dump())
-        self.session.add(vacancy_model)
-        await self.session.commit()
+        await self._insert_one(vacancy_model)
 
     async def get_vacancy_files(self) -> List[models.VacancyFile]:
         query = select(self.vacancy_file)
@@ -126,8 +121,7 @@ class Repository(RepositoryBase):
 
     async def create_vacancy_file(self, vacancy_file: schemas.VacancyFileCreate) -> None:
         vacancy_file_model = models.VacancyFile(**vacancy_file.model_dump())
-        self.session.add(vacancy_file_model)
-        await self.session.commit()
+        await self._insert_one(vacancy_file_model)
 
     async def get_interviews(self, candidate_id: int, status: str) -> List[models.Interview]:
         query = select(self.interview)
@@ -147,8 +141,7 @@ class Repository(RepositoryBase):
 
     async def create_interview(self, interview: schemas.InterviewCreate) -> None:
         interview_model = models.Interview(**interview.model_dump())
-        self.session.add(interview_model)
-        await self.session.commit()
+        await self._insert_one(interview_model)
 
     async def get_candidates(self, vacancy_id: int) -> list[models.Candidate]:
         query = select(self.candidate)
@@ -165,14 +158,13 @@ class Repository(RepositoryBase):
 
     async def create_candidate(self, candidate: schemas.CandidateCreate) -> None:
         candidate_model = models.Candidate(**candidate.model_dump())
-        self.session.add(candidate_model)
-        await self.session.commit()
+        await self._insert_one(candidate_model)
 
-    async def get_grouped_vacancies(self):
+    async def get_grouped_vacancies(self) -> List[Any]:
         query = select(models.Vacancy).filter(
-            models.Vacancy.status == 'closed',
+            models.Vacancy.status == "closed",
             models.Vacancy.close_at.isnot(None),
-            models.Vacancy.open_at.isnot(None)
+            models.Vacancy.open_at.isnot(None),
         )
         return await self._all(query=query)
 
