@@ -46,21 +46,21 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
     return schemas.VacancyAverageTimeResponse(data=average_data)
 
 
-@router.get("screen-time")
+@router.get("/screen-time")
 async def screen_time(repository: Repository = repo_dep) -> list[schemas.ScreenTimeMetrics]:
-    screen_time_data = await repository.get_screen_time_data()
-    return [schemas.ScreenTimeMetrics.model_validate(recruiter) for recruiter in screen_time_data]
+    return await repository.get_screen_time_data()
 
 
 @router.get("/hire-quality")
 async def hire_quality(repository: Repository = repo_dep) -> list[schemas.HireQualityMetrics]:
-    hire_quality_data = await repository.get_hire_quality_data()
-    return [schemas.HireQualityMetrics.model_validate(recruiter) for recruiter in hire_quality_data]
+    return await repository.get_hire_quality_data()
 
 
-@router.get("/vacancy_cost")
-async def vacancy_cost(repository: Repository = repo_dep):
-    """Пример ответа {
+@router.get("/vacancy-cost")
+async def vacancy_cost(repository: Repository = repo_dep) -> dict:
+    """Пример ответа.
+
+    {
     "2024": {
         "1": {
             "average_vacancy_cost": 1500.0
@@ -92,7 +92,7 @@ async def vacancy_cost(repository: Repository = repo_dep):
         if vacancy.close_at:  # Проверяем, что дата закрытия существует
             year = vacancy.close_at.year
             month = vacancy.close_at.month
-            recruiter_id = vacancy.recruiter_id
+            recruiter_id = int(vacancy.recruiter_id)
 
             # Получаем зарплату рекрутера (предполагается, что вы можете получить её через объект User)
             recruiter_salary = await repository.get_user_salary(recruiter_id)
@@ -104,7 +104,7 @@ async def vacancy_cost(repository: Repository = repo_dep):
     # Подсчет средней зарплаты по месяцам
     average_data = defaultdict(lambda: defaultdict(dict))
 
-    for recruiter_id, years in grouped_data.items():
+    for years in grouped_data.values():
         for year, months in years.items():
             for month, data in months.items():
                 total_salary = data["total_salary"]

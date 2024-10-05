@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./backend/logs/app.log:/app/logs/app.log:rw
+      - ./backend/logs/:/app/logs/
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"

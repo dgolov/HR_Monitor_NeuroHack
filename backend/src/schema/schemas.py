@@ -134,7 +134,7 @@ class ScreenTimeMetrics(BaseModel):
     id: int
     recruiter_name: str
     month: datetime
-    value: int
+    value: float
 
 
 class HireQualityMetrics(BaseModel):
