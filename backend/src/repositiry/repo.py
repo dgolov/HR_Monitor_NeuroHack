@@ -67,7 +67,7 @@ class Repository(RepositoryBase):
     interview = models.Interview
     candidate = models.Candidate
 
-    async def get_users(self) -> List[models.User]:
+    async def get_users(self) -> list[models.User]:
         query = select(self.user)
         return await self._all(query=query)
 
@@ -76,7 +76,7 @@ class Repository(RepositoryBase):
         self.session.add(user_model)
         await self.session.commit()
 
-    async def get_vacancies(self) -> List[models.Vacancy]:
+    async def get_vacancies(self) -> list[models.Vacancy]:
         query = select(self.vacancy)
         return await self._all(query=query)
 
@@ -85,7 +85,7 @@ class Repository(RepositoryBase):
         self.session.add(vacancy_model)
         await self.session.commit()
 
-    async def get_vacancy_files(self) -> List[models.VacancyFile]:
+    async def get_vacancy_files(self) -> list[models.VacancyFile]:
         query = select(self.vacancy_file)
         return await self._all(query=query)
 
@@ -94,7 +94,7 @@ class Repository(RepositoryBase):
         self.session.add(vacancy_file_model)
         await self.session.commit()
 
-    async def get_interviews(self) -> List[models.Interview]:
+    async def get_interviews(self) -> list[models.Interview]:
         query = select(self.interview)
         return await self._all(query=query)
 
@@ -103,7 +103,7 @@ class Repository(RepositoryBase):
         self.session.add(interview_model)
         await self.session.commit()
 
-    async def get_candidates(self) -> List[models.Candidate]:
+    async def get_candidates(self) -> list[models.Candidate]:
         query = select(self.candidate)
         return await self._all(query=query)
 
