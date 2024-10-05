@@ -23,7 +23,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(Path(log_directory) / "app.log"),
+        logging.FileHandler(Path(log_directory, "app.log")),
         logging.StreamHandler(),
     ],
 )
