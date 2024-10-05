@@ -94,6 +94,9 @@ class Repository(RepositoryBase):
         creator_id: Optional[int] = None,
         status: Optional[str] = None,
         filter_by: Optional[dict[str, Any]] = None,
+        recruiter_id: Optional[int] = None,
+        date_start: Optional[datetime] = None,
+        date_end: Optional[datetime] = None,
     ) -> List[models.Vacancy]:
         query = select(self.vacancy)
         if creator_id:
@@ -103,6 +106,12 @@ class Repository(RepositoryBase):
         if filter_by:
             filters = {key: value for key, value in filter_by.items() if value}
             query = query.filter_by(**filters)
+        if recruiter_id:
+            query = query.where(self.vacancy.recruiter_id == recruiter_id)
+        if date_start and date_end:
+            query = query.where(
+                and_(self.vacancy.close_at >= date_start, self.vacancy.close_at <= date_end),
+            )
         return await self._all(query=query)
 
     async def get_vacancy_by_id(self, vacancy_id: int) -> models.Vacancy:
@@ -194,12 +203,24 @@ class Repository(RepositoryBase):
         candidate_model = models.Candidate(**candidate.model_dump())
         await self._insert_one(candidate_model)
 
-    async def get_grouped_vacancies(self) -> List[models.Vacancy]:
-        query = select(models.Vacancy).filter(
-            models.Vacancy.status == "closed",
-            models.Vacancy.close_at.isnot(None),
-            models.Vacancy.open_at.isnot(None),
+    async def get_grouped_vacancies(
+        self,
+        recruiter_id: int | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+    ) -> List[models.Vacancy]:
+        query = select(self.vacancy).filter(
+            self.vacancy.status == "closed",
         )
+        if recruiter_id:
+            query = query.where(self.vacancy.recruiter_id == recruiter_id)
+        if date_end and date_start:
+            query = query.where(
+                and_(
+                    self.vacancy.close_at >= date_start,
+                    self.vacancy.close_at <= date_end,
+                ),
+            )
         return await self._all(query=query)
 
     async def get_screen_time_data(

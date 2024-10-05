@@ -12,8 +12,18 @@ router = APIRouter(prefix="/metrics")
 
 
 @router.get("/average-hire-time")
-async def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
-    vacancies = await repository.get_grouped_vacancies()
+async def average_hire_time(
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> schemas.VacancyAverageTimeResponse:
+    """Среднее время закрытия вакансии по годам и месяцам."""
+    vacancies = await repository.get_grouped_vacancies(
+        recruiter_id=recruiter_id,
+        date_start=date_start,
+        date_end=date_end,
+    )
     grouped_data = {}
 
     for vacancy in vacancies:
@@ -54,6 +64,7 @@ async def screen_time(
     date_end: datetime | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.ScreenTimeMetrics]:
+    """Скорость скрининга по рекрутеру за период."""
     return await repository.get_screen_time_data(recruiter_name, date_start, date_end)
 
 
@@ -64,13 +75,23 @@ async def hire_quality(
     date_end: datetime | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.HireQualityMetrics]:
+    """Качество найма по рекрутеру за период.
+
+    Считается как средняя стоимость закрытия вакансии деленная на кол-во отработанных дней сотрудником.
+    """
     return await repository.get_hire_quality_data(recruiter_name, date_start, date_end)
 
 
 @router.get("/vacancy-cost")
-async def vacancy_cost(repository: Repository = repo_dep) -> dict:
-    """Пример ответа.
+async def vacancy_cost(
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> dict:
+    """Средняя стоимость закрытия вакансий по годам и месяцам.
 
+    Пример ответа:
     {
     "2024": {
         "1": {
@@ -87,7 +108,13 @@ async def vacancy_cost(repository: Repository = repo_dep) -> dict:
     }
     }.
     """
-    closed_vacancies = await repository.get_vacancies(status="closed", creator_id=None)
+    closed_vacancies = await repository.get_vacancies(
+        status="closed",
+        creator_id=None,
+        recruiter_id=recruiter_id,
+        date_start=date_start,
+        date_end=date_end,
+    )
     grouped_data = defaultdict(
         lambda: defaultdict(
             lambda: defaultdict(
@@ -137,6 +164,7 @@ async def referal_count(
     date_end: datetime | None = None,
     repository: Repository = repo_dep,
 ) -> schemas.ReferralCountResponse:
+    """Кол-во кандидатов, которые были найдены по рефералу за период."""
     hired_candidates = await repository.get_candidates(
         vacancy_id=None,
         status="hired",
@@ -162,11 +190,20 @@ async def hired_to_rejected(
     date_end: datetime | None = None,
     repository: Repository = repo_dep,
 ) -> schemas.HiredRejectedResponse:
+    """Соотношение всех кандидатов к трудоустроенным и отклоненных за период."""
     hired_candidates = await repository.get_candidates(
-        vacancy_id=None, status="hired", recruiter_id=recruiter_id, date_start=date_start, date_end=date_end
+        vacancy_id=None,
+        status="hired",
+        recruiter_id=recruiter_id,
+        date_start=date_start,
+        date_end=date_end,
     )
     rejected_candidates = await repository.get_candidates(
-        vacancy_id=None, status="rejected", recruiter_id=recruiter_id, date_start=date_start, date_end=date_end
+        vacancy_id=None,
+        status="rejected",
+        recruiter_id=recruiter_id,
+        date_start=date_start,
+        date_end=date_end,
     )
     total_hired = len(hired_candidates) + len(rejected_candidates)
 
