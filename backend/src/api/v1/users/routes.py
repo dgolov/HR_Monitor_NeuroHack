@@ -1,6 +1,4 @@
-from typing import TYPE_CHECKING, List
-
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
 from src.api.v1.deps import repo_dep
@@ -9,16 +7,12 @@ from src.schema import schemas
 from src.settings import logger
 
 
-if TYPE_CHECKING:
-    from src.database import models
-
-
 router = APIRouter(prefix="/users")
 
 
 @router.get("/")
 async def get_users(repository: Repository = repo_dep) -> list[schemas.User]:
-    users_list: List[models.User] = await repository.get_users()
+    users_list = await repository.get_users()
     return [schemas.User.model_validate(user) for user in users_list]
 
 
@@ -26,7 +20,7 @@ async def get_users(repository: Repository = repo_dep) -> list[schemas.User]:
 async def create_user(
     data: schemas.UserCreate,
     repository: Repository = repo_dep,
-):
+) -> JSONResponse:
     logger.debug(f"Create user - {data}")
     await repository.create_user(user=data)
     return JSONResponse(
