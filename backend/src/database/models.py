@@ -2,6 +2,8 @@ from uuid import uuid4
 
 from sqlalchemy import JSON, UUID, Boolean, Column, Date, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import relationship
+
 
 
 class Base(DeclarativeBase):
@@ -61,6 +63,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     salary = Column(Integer)
 
+    employees = relationship("Employee", back_populates="recruiter")
+
 
 class Interview(Base):
     __tablename__ = "interview"
@@ -119,3 +123,6 @@ class Employee(Base):
     cost_of_hiring = Column(Integer)
     manager_rating = Column(Integer)
     recruiter_id = Column(Integer, ForeignKey("user.id"))
+
+    recruiter = relationship("User", back_populates="employees")
+

@@ -135,7 +135,7 @@ def create_employee():
         date_fired=fake.date_between(datetime(2024, 1, 1), datetime.now()),
         position=fake.catch_phrase(),
         cost_of_hiring=random.randrange(100, 400),
-        manager_rating=random.randint(1, 6),
+        manager_rating=random.randint(1, 10),
         recruiter_id=random.randint(1, 5),
     )
 
@@ -178,7 +178,7 @@ async def populate_database() -> None:
         recruiter = random.choice(recruiters)
         session.add(create_screen_time_metrics(recruiter.name))
 
-    for _ in range(100):
+    for _ in range(5000):
         session.add(create_employee())
 
     await session.commit()
