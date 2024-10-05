@@ -88,3 +88,11 @@ class RecruiterTask(Base):
     created_at = Column(Date)
     started_at = Column(Date)
     closed_at = Column(Date)
+
+
+class ScreenTimeMetrics(Base):
+    __tablename__ = "screen_time_metrics"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    month = Column(Date)
+    screen_time = Column(Integer)
