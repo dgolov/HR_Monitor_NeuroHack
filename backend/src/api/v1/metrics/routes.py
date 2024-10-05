@@ -13,10 +13,10 @@ router = APIRouter(prefix="/metrics")
 
 @router.get("/average-hire-time")
 async def average_hire_time(
-        recruiter_id: int | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> schemas.VacancyAverageTimeResponse:
     """Среднее время закрытия вакансии по годам и месяцам."""
     vacancies = await repository.get_grouped_vacancies(
@@ -59,21 +59,22 @@ async def average_hire_time(
 
 @router.get("/screen-time")
 async def screen_time(
-        recruiter_name: str | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> list[schemas.ScreenTimeMetrics]:
     """Скорость скрининга по рекрутеру за период."""
-    return await repository.get_screen_time_data(recruiter_name, date_start, date_end)
+    return await repository.get_screen_time_data(recruiter_name, date_start, date_end, recruiter_id)
 
 
 @router.get("/hire-quality")
 async def hire_quality(
-        recruiter_name: str | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_name: str | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> list[schemas.HireQualityMetrics]:
     """Качество найма по рекрутеру за период.
 
@@ -84,10 +85,10 @@ async def hire_quality(
 
 @router.get("/vacancy-cost")
 async def vacancy_cost(
-        recruiter_id: int | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> dict:
     """Средняя стоимость закрытия вакансий по годам и месяцам.
 
@@ -159,10 +160,10 @@ async def vacancy_cost(
 
 @router.get("/referal-part")
 async def referal_count(
-        recruiter_id: str | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_id: str | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> schemas.ReferralCountResponse:
     """Кол-во кандидатов, которые были найдены по рефералу за период."""
     hired_candidates = await repository.get_candidates(
@@ -185,10 +186,10 @@ async def referal_count(
 
 @router.get("/hired-to-rejected")
 async def hired_to_rejected(
-        recruiter_id: str | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_id: str | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> schemas.HiredRejectedResponse:
     """Соотношение всех кандидатов к трудоустроенным и отклоненных за период."""
     hired_candidates = await repository.get_candidates(
@@ -216,8 +217,8 @@ async def hired_to_rejected(
 
 @router.get("/soon-fired")
 async def get_fired_employees_count(
-        reference_date: datetime,
-        repository: Repository = repo_dep,
+    reference_date: datetime,
+    repository: Repository = repo_dep,
 ):
     # Вычисляем дату 6 месяцев назад от заданной даты
     six_months_ago = reference_date - timedelta(days=6 * 30)
@@ -237,7 +238,7 @@ async def get_fired_employees_count(
 
 @router.get("/soon_fired_summary")
 async def get_fired_employees_for_last_3_years(
-        repository: Repository = repo_dep,
+    repository: Repository = repo_dep,
 ):
     current_date = datetime.now()
 
@@ -276,8 +277,8 @@ async def get_fired_employees_for_last_3_years(
 
 @router.get("/average_manager_rating")
 async def get_average_manager_rating(
-        year: int,
-        repository: Repository = repo_dep,
+    year: int,
+    repository: Repository = repo_dep,
 ) -> schemas.RecruiterRatingsResponse:
     # Определяем границы заданного года
     start_date = datetime(year, 1, 1)
@@ -298,7 +299,7 @@ async def get_average_manager_rating(
         for month, ratings in months_data.items():
             average_rating = sum(ratings) / len(ratings) if ratings else 0
             response_data[recruiter_name][month] = {
-                "average_satisfaction_level": round(average_rating, 2)
+                "average_satisfaction_level": round(average_rating, 2),
             }
 
     recruiter_data = {
