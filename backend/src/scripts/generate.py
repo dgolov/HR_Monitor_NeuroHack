@@ -7,6 +7,7 @@ from faker import Faker
 from src.database.db import async_session_maker
 from src.database.models import (
     Candidate,
+    Employee,
     HireQualityMetrics,
     Interview,
     RecruiterTask,
@@ -14,7 +15,6 @@ from src.database.models import (
     User,
     Vacancy,
     VacancyFile,
-    Employee
 )
 from src.settings import logger
 
@@ -109,17 +109,17 @@ def create_recruiter_task(recruiter_id):
     )
 
 
-def create_hire_quality_metrics():
+def create_hire_quality_metrics(recruiter_name):
     return HireQualityMetrics(
-        recruiter_name=fake.name(),
+        recruiter_name=recruiter_name,
         month=fake.date_between(datetime(2024, 1, 1), datetime.now()),
         value=round(random.uniform(0, 1), 3),
     )
 
 
-def create_screen_time_metrics():
+def create_screen_time_metrics(recruiter_name):
     return ScreenTimeMetrics(
-        recruiter_name=fake.name(),
+        recruiter_name=recruiter_name,
         month=fake.date_between(datetime(2024, 1, 1), datetime.now()),
         value=round(random.uniform(0, 1), 3),
     )
@@ -128,18 +128,18 @@ def create_screen_time_metrics():
 def create_employee():
     return Employee(
         name=fake.name(),
-        date_started=fake.date_between(datetime(2023, 1, 1), datetime.now()-timedelta(days=365)),
+        date_started=fake.date_between(datetime(2023, 1, 1), datetime.now() - timedelta(days=365)),
         date_fired=fake.date_between(datetime(2024, 1, 1), datetime.now()),
         position=fake.catch_phrase(),
         cost_of_hiring=random.randrange(100, 400),
         manager_rating=random.randint(1, 6),
-        recruiter_id=random.randint(1, 5)
+        recruiter_id=random.randint(1, 5),
     )
 
+
 async def populate_database() -> None:
-    for _ in range(10):
-        user = create_user()
-        session.add(user)
+    recruiters = [create_user() for _ in range(10)]
+    session.add_all(recruiters)
     await session.commit()
 
     for _ in range(10000):
@@ -162,15 +162,16 @@ async def populate_database() -> None:
 
     for _ in range(5):
         candidate_id = random.randint(1, 10)
-        recruiter_id = random.randint(1, 10)
+        recruiter = random.choice(recruiters)
         tech_id = random.randint(1, 10)
-        session.add(create_interview(candidate_id, recruiter_id, tech_id))
+        session.add(create_interview(candidate_id, recruiter.id, tech_id))
 
     for _ in range(4000):
-        session.add(create_hire_quality_metrics())
+        session.add(create_hire_quality_metrics(recruiter.name))
 
     for _ in range(4000):
-        session.add(create_screen_time_metrics())
+        recruiter = random.choice(recruiters)
+        session.add(create_screen_time_metrics(recruiter.name))
 
     for _ in range(100):
         session.add(create_employee())
