@@ -94,14 +94,14 @@ class RecruiterTask(Base):
 class ScreenTimeMetrics(Base):
     __tablename__ = "screen_time_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    recruiter_name = Column(String())
     month = Column(Date)
-    screen_time = Column(Integer)
+    value = Column(Float)
 
 
 class HireQualityMetrics(Base):
     __tablename__ = "hire_quality_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    recruiter_name = Column(String())
     month = Column(Date)
-    hire_quality = Column(Float)
+    value = Column(Float)

@@ -131,12 +131,14 @@ class VacancyAverageTimeResponse(BaseModel):
 
 
 class ScreenTimeMetrics(BaseModel):
-    recruiter_id: int
+    id: int
+    recruiter_name: str
     month: datetime
-    screen_time: int
+    value: int
 
 
 class HireQualityMetrics(BaseModel):
-    recruiter_id: int
+    id: int
+    recruiter_name: str
     month: datetime
-    hire_quality: float
+    value: float
