@@ -23,8 +23,7 @@ class RepositoryBase:
 
     async def _all_special(self, query: Select) -> list[Any]:
         query_result = await self.session.execute(query)
-        rows = query_result.all()
-        return rows
+        return query_result.all()
 
     async def _first(self, query):
         query_result = await self.session.execute(query)
@@ -96,13 +95,13 @@ class Repository(RepositoryBase):
         return int(user.salary) if user else 0
 
     async def get_vacancies(
-            self,
-            creator_id: Optional[int] = None,
-            status: Optional[str] = None,
-            filter_by: Optional[dict[str, Any]] = None,
-            recruiter_id: Optional[int] = None,
-            date_start: Optional[datetime] = None,
-            date_end: Optional[datetime] = None,
+        self,
+        creator_id: Optional[int] = None,
+        status: Optional[str] = None,
+        filter_by: Optional[dict[str, Any]] = None,
+        recruiter_id: Optional[int] = None,
+        date_start: Optional[datetime] = None,
+        date_end: Optional[datetime] = None,
     ) -> List[models.Vacancy]:
         query = select(self.vacancy)
         if creator_id:
@@ -167,12 +166,12 @@ class Repository(RepositoryBase):
         await self._insert_one(interview_model)
 
     async def get_candidates(
-            self,
-            vacancy_id: Optional[int] = None,
-            status: Optional[str] = None,
-            recruiter_id: str | None = None,
-            date_start: datetime | None = None,
-            date_end: datetime | None = None,
+        self,
+        vacancy_id: Optional[int] = None,
+        status: Optional[str] = None,
+        recruiter_id: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
     ) -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
@@ -210,10 +209,10 @@ class Repository(RepositoryBase):
         await self._insert_one(candidate_model)
 
     async def get_grouped_vacancies(
-            self,
-            recruiter_id: int | None = None,
-            date_start: datetime | None = None,
-            date_end: datetime | None = None,
+        self,
+        recruiter_id: int | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
     ) -> List[models.Vacancy]:
         query = select(self.vacancy).filter(
             self.vacancy.status == "closed",
@@ -230,10 +229,10 @@ class Repository(RepositoryBase):
         return await self._all(query=query)
 
     async def get_screen_time_data(
-            self,
-            recruiter_name: str | None,
-            date_start: datetime | None,
-            date_end: datetime | None,
+        self,
+        recruiter_name: str | None,
+        date_start: datetime | None,
+        date_end: datetime | None,
     ) -> List[models.ScreenTimeMetrics]:
         query = select(self.screen_time)
         if recruiter_name:
@@ -245,13 +244,14 @@ class Repository(RepositoryBase):
                     self.screen_time.month <= date_end,
                 ),
             )
+        query = query.order_by(self.screen_time.month)
         return await self._all(query=query)
 
     async def get_hire_quality_data(
-            self,
-            recruiter_name: str | None,
-            date_start: datetime | None,
-            date_end: datetime | None,
+        self,
+        recruiter_name: str | None,
+        date_start: datetime | None,
+        date_end: datetime | None,
     ) -> List[models.HireQualityMetrics]:
         query = select(self.hire_quality)
         if recruiter_name:
@@ -274,12 +274,12 @@ class Repository(RepositoryBase):
         )
         return await self._all(query=query)
 
-    async def get_tasks(self,
-                        start: datetime,
-                        end: datetime,
-                        status: str
-                        ) -> List[models.RecruiterTask]:
-
+    async def get_tasks(
+        self,
+        start: datetime,
+        end: datetime,
+        status: str,
+    ) -> List[models.RecruiterTask]:
         query = select(self.recruiter_task)
         if start:
             query = query.where(self.recruiter_task.created_at >= start)
@@ -295,22 +295,21 @@ class Repository(RepositoryBase):
             query = query.where(self.recruiter_task.status == status)
         return await self._all(query=query)
 
-    async def get_tasks_by_hr_id(self,
-                                 start: datetime,
-                                 end: datetime,
-                                 status: str,
-                                 hr_id: int,
-                                 order_by: str,
-                                 ) -> List[models.RecruiterTask]:
-
+    async def get_tasks_by_hr_id(
+        self,
+        start: datetime,
+        end: datetime,
+        status: str,
+        hr_id: int,
+        order_by: str,
+    ) -> List[models.RecruiterTask]:
         order_by_columns = {
-            'priority': self.recruiter_task.priority,
-            'created_at': self.recruiter_task.created_at,
-            'status': self.recruiter_task.status
+            "priority": self.recruiter_task.priority,
+            "created_at": self.recruiter_task.created_at,
+            "status": self.recruiter_task.status,
         }
 
-        query = (select(self.recruiter_task).where(recruiter_id=hr_id).
-                 order_by(order_by_columns.get(order_by)))
+        query = select(self.recruiter_task).where(recruiter_id=hr_id).order_by(order_by_columns.get(order_by))
         if start:
             query = query.where(self.recruiter_task.created_at >= start)
         if end:
@@ -320,10 +319,10 @@ class Repository(RepositoryBase):
         return await self._all(query=query)
 
     async def get_fired_employees_by_month(
-            self,
-            first_day_of_month: datetime,
-            first_day_next_month: datetime,
-            six_months_ago: datetime,
+        self,
+        first_day_of_month: datetime,
+        first_day_next_month: datetime,
+        six_months_ago: datetime,
     ) -> List[models.Employee]:
         query = select(models.Employee).filter(
             and_(
@@ -335,15 +334,14 @@ class Repository(RepositoryBase):
         return await self._all(query=query)
 
     async def get_employees_by_started_date(self, start_date, end_date):
-
         query = (
             select(models.Employee, models.User.name)
-                .join(models.User, models.Employee.recruiter_id == models.User.id)
-                .filter(
+            .join(models.User, models.Employee.recruiter_id == models.User.id)
+            .filter(
                 and_(
                     models.Employee.date_started >= start_date,
-                    models.Employee.date_started <= end_date
-                )
+                    models.Employee.date_started <= end_date,
+                ),
             )
         )
         return await self._all_special(query=query)
