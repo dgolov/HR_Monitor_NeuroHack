@@ -45,6 +45,19 @@ services:
       - db
     restart: always
 
+  frontend:
+    container_name: frontend_container
+    environment:
+      - VUE_APP_API_URL=http://backend:8000
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    volumes:
+      - vue_dist:/app/dist
+
+
   nginx:
     container_name: nginx_container
     build:
@@ -52,6 +65,7 @@ services:
       dockerfile: nginx.dockerfile
     volumes:
       - ./static/:/static
+      - vue_dist:/app/dist
     ports:
       - "80:80"
     depends_on:
@@ -59,3 +73,4 @@ services:
 
 volumes:
   postgres_data:
+  vue_dist:
