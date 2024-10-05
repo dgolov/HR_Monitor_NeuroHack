@@ -170,3 +170,15 @@ class RecruiterTask(BaseModel):
     created_at: datetime
     started_at: datetime
     closed_at: datetime
+
+
+class MonthRating(BaseModel):
+    average_satisfaction_level: float
+
+
+class RecruiterMonthlyRatings(BaseModel):
+    month_data: Dict[int, MonthRating]
+
+
+class RecruiterRatingsResponse(BaseModel):
+    recruiter_data: Dict[str, RecruiterMonthlyRatings]

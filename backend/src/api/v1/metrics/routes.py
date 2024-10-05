@@ -278,12 +278,10 @@ async def get_fired_employees_for_last_3_years(
 async def get_average_manager_rating(
         year: int,
         repository: Repository = repo_dep,
-):
+) -> schemas.RecruiterRatingsResponse:
     # Определяем границы заданного года
     start_date = datetime(year, 1, 1)
     end_date = datetime(year, 12, 31)
-
-    # Запрашиваем всех сотрудников, у которых date_started в указанный год
 
     employees = await repository.get_employees_by_started_date(start_date, end_date)
 
@@ -295,12 +293,17 @@ async def get_average_manager_rating(
         data[recruiter_name][month].append(employee.manager_rating)
 
     # Рассчитываем средний рейтинг по месяцам для каждого рекрутера
-    response = defaultdict(lambda: defaultdict(dict))
+    response_data = defaultdict(lambda: defaultdict(dict))
     for recruiter_name, months_data in data.items():
         for month, ratings in months_data.items():
             average_rating = sum(ratings) / len(ratings) if ratings else 0
-            response[recruiter_name][month] = {
+            response_data[recruiter_name][month] = {
                 "average_satisfaction_level": round(average_rating, 2)
             }
 
-    return response
+    recruiter_data = {
+        recruiter_name: schemas.RecruiterMonthlyRatings(month_data=dict(months_data))
+        for recruiter_name, months_data in response_data.items()
+    }
+
+    return schemas.RecruiterRatingsResponse(recruiter_data=recruiter_data)
