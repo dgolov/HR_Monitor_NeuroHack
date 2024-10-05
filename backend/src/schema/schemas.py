@@ -158,3 +158,15 @@ class HiredRejectedResponse(BaseModel):
 
 class EmployeeCountResponse(BaseModel):
     total_fired_less_than_6_months: int
+
+
+class RecruiterTask(BaseModel):
+    uuid: UUID4= uuid.uuid4()
+    type: str
+    recruiter_id: User
+    description: str
+    status: str
+    priority: int
+    created_at: datetime
+    started_at: datetime
+    closed_at: datetime
