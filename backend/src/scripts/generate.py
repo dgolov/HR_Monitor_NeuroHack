@@ -37,15 +37,18 @@ def create_candidate():
 
 
 def create_vacancy(recruiter_id: int) -> Vacancy:
+    created_at = fake.date_this_year(before_today=True)
+    today = datetime.now()
+    open_at = fake.date_between(start_date=created_at, end_date=today)
     return Vacancy(
         uuid=uuid4(),
         title=fake.job(),
         description=fake.text(),
         status=random.choice(["open", "closed", "in progress"]),
-        created_at=fake.date_this_year(),
-        open_at=fake.date_this_year(),
-        updated_at=fake.date_this_year(),
-        close_at=fake.date_this_year(),
+        created_at=created_at,
+        open_at=open_at,
+        updated_at=fake.date_between(start_date=open_at, end_date=today),
+        close_at=fake.date_this_year(after_today=True),
         viewed_count=random.randint(0, 100),
         responded_count=random.randint(0, 100),
         vacancy_file_id=random.randint(1, 10),
