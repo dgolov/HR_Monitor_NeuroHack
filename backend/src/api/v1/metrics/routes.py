@@ -159,8 +159,8 @@ async def get_fired_employees_count(repository: Repository = repo_dep,
 
     # Подсчитываем тех, кто проработал менее 6 месяцев
     count_fired_less_than_6_months = sum(
-        1 for employee in fired_employees
-        if employee.date_started and (employee.date_fired - employee.date_started).days < 6 * 30
+        (employee.date_fired - employee.date_started).days < 6 * 30
+        for employee in fired_employees
     )
 
     return schemas.EmployeeCountResponse(
