@@ -94,7 +94,7 @@ def create_recruiter_task(recruiter_id):
         type=random.choice(["interview", "screening", "follow-up"]),
         recruiter_id=recruiter_id,
         description=fake.text(),
-        status=random.choice(["pending", "completed"]),
+        status=random.choice(["open","pending", "completed"]),
         priority=random.randint(1, 5),
         created_at=fake.date_this_year(),
         started_at=fake.date_this_year(),
