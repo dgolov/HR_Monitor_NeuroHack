@@ -66,6 +66,7 @@ class Repository(RepositoryBase):
     vacancy_file = models.VacancyFile
     interview = models.Interview
     candidate = models.Candidate
+    screen_time = models.ScreenTimeMetrics
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
@@ -170,7 +171,7 @@ class Repository(RepositoryBase):
                 extract("year", models.Vacancy.close_at).label("year"),
                 extract("month", models.Vacancy.close_at).label("month"),
                 func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label(
-                    "average_closure_time"
+                    "average_closure_time",
                 ),
                 func.count(models.Vacancy.id).label("vacancies_count"),
             )
@@ -189,3 +190,7 @@ class Repository(RepositoryBase):
             )
         )
         return await self.session.execute(query).fetchall()
+
+    async def get_screen_time_data(self) -> List[models.ScreenTimeMetrics]:
+        query = select(self.screen_time)
+        return await self._all(query=query)
