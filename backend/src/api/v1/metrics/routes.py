@@ -93,20 +93,28 @@ async def vacancy_cost(
 
     Пример ответа:
     {
+  "Tiffany Woods": {
     "2024": {
-        "1": {
-            "average_vacancy_cost": 1500.0
-        },
-        "2": {
-            "average_vacancy_cost": 1200.0
-        }
-    },
-    "2023": {
-        "12": {
-            "average_vacancy_cost": 1800.0
-        }
-    }
-    }.
+      "1": {
+        "total_salary": 3839,
+        "vacancies_count": 3,
+        "vacancy_cost": 1279.6666666666667
+      },
+      "2": {
+        "total_salary": 3839,
+        "vacancies_count": 4,
+        "vacancy_cost": 959.75
+      },
+      "4": {
+        "total_salary": 3839,
+        "vacancies_count": 3,
+        "vacancy_cost": 1279.6666666666667
+      },
+      "5": {
+        "total_salary": 3839,
+        "vacancies_count": 3,
+        "vacancy_cost": 1279.6666666666667
+      },...
     """
     closed_vacancies = await repository.get_vacancies(
         status="closed",
@@ -125,36 +133,30 @@ async def vacancy_cost(
             ),
         ),
     )
-
+    recruiters_ids = []
     for vacancy in closed_vacancies:
         if vacancy.close_at:  # Проверяем, что дата закрытия существует
             year = vacancy.close_at.year
             month = vacancy.close_at.month
             recruiter_id = int(vacancy.recruiter_id)
 
-            # Получаем зарплату рекрутера (предполагается, что вы можете получить её через объект User)
-            recruiter_salary = await repository.get_user_salary(recruiter_id)
+            recruiter = await repository.get_user_by_id(recruiter_id)
+            recruiter_salary = recruiter.salary
+            recruiter_name = recruiter.name
 
             # Обновляем сумму зарплат и количество вакансий
-            grouped_data[recruiter_id][year][month]["total_salary"] += recruiter_salary
-            grouped_data[recruiter_id][year][month]["vacancies_count"] += 1
+            grouped_data[recruiter_name][year][month]["total_salary"] = recruiter_salary
+            grouped_data[recruiter_name][year][month]["vacancies_count"] += 1
 
-    # Подсчет средней зарплаты по месяцам
-    average_data = defaultdict(lambda: defaultdict(dict))
-
-    for years in grouped_data.values():
-        for year, months in years.items():
-            for month, data in months.items():
-                total_salary = data["total_salary"]
-                vacancies_count = data["vacancies_count"]
-
-                if vacancies_count > 0:
-                    average_salary = total_salary / vacancies_count
-                    average_data[year][month] = {
-                        "average_vacancy_cost": average_salary,
-                    }
-
-    return dict(average_data)
+    for recruiter_name in grouped_data:
+        for year in grouped_data[recruiter_name]:
+            for month in grouped_data[recruiter_name][year]:
+                grouped_data[recruiter_name][year][month]["vacancy_cost"] = grouped_data[recruiter_name][year][month][
+                                                                              "total_salary"] / \
+                                                                          grouped_data[recruiter_name][year][month][
+                                                                              "vacancies_count"]
+    print(grouped_data)
+    return grouped_data
 
 
 @router.get("/referal-part")
