@@ -142,12 +142,12 @@ async def populate_database() -> None:
     session.add_all(recruiters)
     await session.commit()
 
-    for _ in range(10000):
+    for _ in range(1000):
         recruiter = random.choice(recruiters)
         session.add(create_vacancy(recruiter.id))
     await session.commit()
 
-    for _ in range(10000):
+    for _ in range(1000):
         session.add(create_candidate())
     await session.commit()
 
