@@ -107,3 +107,15 @@ class HireQualityMetrics(Base):
     recruiter_name = Column(String())
     month = Column(Date)
     value = Column(Float)
+
+
+class Employee(Base):
+    __tablename__ = "employee"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name= Column(String())
+    date_started = Column(Date)
+    date_fired = Column(Date)
+    position = Column(String)
+    cost_of_hiring = Column(Integer)
+    manager_rating = Column(Integer)
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
