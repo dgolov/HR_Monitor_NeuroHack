@@ -1,5 +1,6 @@
 <template>
-  <h1 class="text-center mt-4 mb-4">Графики по обработанным вакансиям</h1>
+  <h1 class="text-center mt-4 mb-4">Метрики эффективности</h1>
+  <hr/>
   <div class="container mt-4">
     <div class="row mt-4">
       <div class="col-md-6 mb-4">
@@ -8,6 +9,17 @@
           <select id="yearSelector" class="form-control" v-model="selectedYear" @change="updateChartData">
             <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
           </select>
+        </div>
+        <div class="form-group">
+          <div class="row">
+            <label>Укажите id рекрутера:</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" v-model="recruterID" v-on:keyup.enter="fetchVacancyData">
+            </div>
+            <div class="col-md-3">
+              <button type="button" class="btn btn-secondary w-100" @click="fetchVacancyData">Сформировать</button>
+            </div>
+          </div>
         </div>
         <div class="card">
           <div class="card-body">
@@ -98,6 +110,7 @@ export default {
       selectedYear: null,
       chartData: { datasets: [] },
       chartTitle: '',
+      recruterID: '',
       chartOptions: {
         scales: {
           x: {
@@ -152,7 +165,11 @@ export default {
   methods: {
     async fetchVacancyData() {
       try {
-        const response = await fetch(`${apiUrl}/metrics/average-hire-time`);
+        let url = `${apiUrl}/metrics/average-hire-time`;
+        if (this.recruterID) {
+          url += `?recruiter_id=${this.recruterID}`;
+        }
+        const response = await fetch(url);
         const data = await response.json();
         this.jsonData = data.data;
         this.availableYears = Object.keys(this.jsonData);
@@ -317,17 +334,17 @@ export default {
         data: {
           labels: labels,
           datasets: [{
-            label: 'Производительность ' + this.itemQualityRecruter,
+            label: 'Качество найма ' + this.itemQualityRecruter,
             data: values,
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)', 
+            borderColor: 'rgba(255, 159, 64, 1)',  
             borderWidth: 1,
           }],
         },
         options: {
           scales: {
             x: {
-              type: 'category', // Set x-axis type to category
+              type: 'category',
               title: {
                 display: true,
                 text: 'Время',
@@ -337,7 +354,7 @@ export default {
               beginAtZero: true,
               title: {
                 display: true,
-                text: 'Производительность',
+                text: 'Качество',
               },
             },
           },
@@ -352,6 +369,6 @@ export default {
 <style scoped>
 .card {
   margin-top: 20px;
-  height: 380px
+  height: 380px;
 }
 </style>
