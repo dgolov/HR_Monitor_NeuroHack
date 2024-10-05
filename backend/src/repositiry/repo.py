@@ -166,11 +166,11 @@ class Repository(RepositoryBase):
 
     async def get_grouped_vacancies(self):
         query = (
-            self.session.query(
+            select(
                 extract("year", models.Vacancy.close_at).label("year"),
                 extract("month", models.Vacancy.close_at).label("month"),
                 func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label(
-                    "average_closure_time",
+                    "average_closure_time"
                 ),
                 func.count(models.Vacancy.id).label("vacancies_count"),
             )
@@ -187,6 +187,5 @@ class Repository(RepositoryBase):
                 extract("year", models.Vacancy.close_at),
                 extract("month", models.Vacancy.close_at),
             )
-            .all()
         )
-        return await query.all()
+        return await self.session.execute(query).fetchall()
