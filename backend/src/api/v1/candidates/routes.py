@@ -6,17 +6,26 @@ from src.repositiry.repo import Repository
 from src.settings import logger
 
 
-router = APIRouter(prefix="/users")
+router = APIRouter(prefix="/candidates")
 
 
 @router.post("/")
-async def create_user(
-        data: schemas.UserCreate,
+async def create_candidate(
+        data: schemas.CandidateCreate,
         repository: Repository = repo_dep
 ):
-    logger.debug(f'Create user - {data}')
-    await repository.create_user(user=data)
+    logger.debug(f'Create candidate - {data}')
+    await repository.create_candidate(candidate=data)
     return JSONResponse(
         content={"message": "Ok"},
         status_code=status.HTTP_201_CREATED
     )
+
+
+@router.get("/candidates/{vacancy_id}")
+async def get_candidates(
+        vacancy_id: int
+):
+    log.debug(f'route /candidates/ called with {vacancy_id=}')
+    pass  # todo
+
