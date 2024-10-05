@@ -9,30 +9,30 @@ class Repository:
     interview = models.Interview
     candidate = models.Candidate
 
-    def __init__(self, session):
+    def __init__(self, session) -> None:
         self.session = session
-        
-    async def create_user(self, user: schemas.UserCreate):
+
+    async def create_user(self, user: schemas.UserCreate) -> None:
         user_model = models.User(**user.model_dump())
         self.session.add(user_model)
         await self.session.commit()
-    
-    async def create_vacancy(self, vacancy: schemas.VacancyCreate):
+
+    async def create_vacancy(self, vacancy: schemas.VacancyCreate) -> None:
         vacancy_model = models.Vacancy(**vacancy.model_dump())
         self.session.add(vacancy_model)
         await self.session.commit()
-            
-    async def create_vacancy_file(self, vacancy_file: schemas.VacancyFileCreate):
+
+    async def create_vacancy_file(self, vacancy_file: schemas.VacancyFileCreate) -> None:
         vacancy_file_model = models.VacancyFile(**vacancy_file.model_dump())
         self.session.add(vacancy_file_model)
         await self.session.commit()
-    
-    async def create_interview(self, interview: schemas.InterviewCreate):
+
+    async def create_interview(self, interview: schemas.InterviewCreate) -> None:
         interview_model = models.Interview(**interview.model_dump())
         self.session.add(interview_model)
         await self.session.commit()
-    
-    async def create_candidate(self, candidate: schemas.CandidateCreate):
+
+    async def create_candidate(self, candidate: schemas.CandidateCreate) -> None:
         candidate_model = models.Candidate(**candidate.model_dump())
         self.session.add(candidate_model)
         await self.session.commit()
