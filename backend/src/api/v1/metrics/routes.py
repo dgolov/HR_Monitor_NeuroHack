@@ -47,5 +47,10 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
 @router.get("screen-time")
 async def screen_time(repository: Repository = repo_dep) -> list[schemas.ScreenTimeMetrics]:
     screen_time_data = await repository.get_screen_time_data()
-
     return [recruiter.dict() for recruiter in screen_time_data]
+
+
+@router.get("/hire-quality")
+async def hire_quality(repository: Repository = repo_dep) -> list[schemas.HireQualityMetrics]:
+    hire_quality_data = await repository.get_hire_quality_data()
+    return [recruiter.dict() for recruiter in hire_quality_data]

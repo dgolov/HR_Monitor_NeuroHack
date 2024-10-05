@@ -25,8 +25,7 @@ class RepositoryBase:
         result = query_result.first()
         if result:
             return result[0]
-        else:
-            return None
+        return None
 
     @staticmethod
     async def _one(result):
@@ -67,6 +66,7 @@ class Repository(RepositoryBase):
     interview = models.Interview
     candidate = models.Candidate
     screen_time = models.ScreenTimeMetrics
+    hire_quality = models.HireQualityMetrics
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
@@ -170,4 +170,8 @@ class Repository(RepositoryBase):
 
     async def get_screen_time_data(self) -> List[models.ScreenTimeMetrics]:
         query = select(self.screen_time)
+        return await self._all(query=query)
+
+    async def get_hire_quality_data(self) -> List[models.HireQualityMetrics]:
+        query = select(self.hire_quality)
         return await self._all(query=query)

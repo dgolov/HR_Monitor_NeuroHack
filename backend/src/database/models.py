@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from sqlalchemy import JSON, UUID, Boolean, Column, Date, ForeignKey, Integer, String
+from sqlalchemy import JSON, UUID, Boolean, Column, Date, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -97,3 +97,11 @@ class ScreenTimeMetrics(Base):
     recruiter_id = Column(Integer, ForeignKey("user.id"))
     month = Column(Date)
     screen_time = Column(Integer)
+
+
+class HireQualityMetrics(Base):
+    __tablename__ = "hire_quality_metrics"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    month = Column(Date)
+    hire_quality = Column(Float)
