@@ -117,3 +117,18 @@ async def vacancy_cost(repository: Repository = repo_dep):
                     }
 
     return dict(average_data)
+
+
+@router.get("/referal_part")
+async def referal_count(repository: Repository = repo_dep):
+    hired_candidates = await repository.get_candidates(vacancy_id=None, status='hired')
+    # Подсчитываем количество рефералов и нерефералов
+    total_hired = len(hired_candidates)
+    referral_count = sum(1 for candidate in hired_candidates if candidate.is_referral)
+    non_referral_count = total_hired - referral_count  # Разность даст количество нерефералов
+
+    return schemas.ReferralCountResponse(
+        total_hired=total_hired,
+        referral_count=referral_count,
+        non_referral_count=non_referral_count,
+    )

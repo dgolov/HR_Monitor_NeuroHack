@@ -130,7 +130,7 @@ async def populate_database() -> None:
         session.add(user)
     await session.commit()
 
-    for _ in range(1000):
+    for _ in range(10000):
         session.add(create_vacancy())
     await session.commit()
 
@@ -154,10 +154,10 @@ async def populate_database() -> None:
         tech_id = random.randint(1, 10)
         session.add(create_interview(candidate_id, recruiter_id, tech_id))
 
-    for _ in range(500):
+    for _ in range(4000):
         session.add(create_hire_quality_metrics())
 
-    for _ in range(500):
+    for _ in range(4000):
         session.add(create_screen_time_metrics())
 
     await session.commit()
