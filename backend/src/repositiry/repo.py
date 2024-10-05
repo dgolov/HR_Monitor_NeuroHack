@@ -1,6 +1,9 @@
 from typing import Any, List, Optional
 
 from fastapi import HTTPException
+from typing import List, Optional
+
+from fastapi import HTTPException
 from sqlalchemy import Select, extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -166,30 +169,12 @@ class Repository(RepositoryBase):
         await self.session.commit()
 
     async def get_grouped_vacancies(self):
-        query = (
-            select(
-                extract("year", models.Vacancy.close_at).label("year"),
-                extract("month", models.Vacancy.close_at).label("month"),
-                func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label(
-                    "average_closure_time",
-                ),
-                func.count(models.Vacancy.id).label("vacancies_count"),
-            )
-            .filter(
-                models.Vacancy.status == "closed",
-                models.Vacancy.close_at.isnot(None),
-                models.Vacancy.open_at.isnot(None),
-            )
-            .group_by(
-                extract("year", models.Vacancy.close_at),
-                extract("month", models.Vacancy.close_at),
-            )
-            .order_by(
-                extract("year", models.Vacancy.close_at),
-                extract("month", models.Vacancy.close_at),
-            )
+        query = select(models.Vacancy).filter(
+            models.Vacancy.status == 'closed',
+            models.Vacancy.close_at.isnot(None),
+            models.Vacancy.open_at.isnot(None)
         )
-        return await self.session.execute(query).fetchall()
+        return await self._all(query=query)
 
     async def get_screen_time_data(self) -> List[models.ScreenTimeMetrics]:
         query = select(self.screen_time)
