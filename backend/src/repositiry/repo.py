@@ -278,12 +278,12 @@ class Repository(RepositoryBase):
         )
         return await self._all(query=query)
 
-    async def get_tasks(self,
-                        start: datetime,
-                        end: datetime,
-                        status: str
-                        ) -> List[models.RecruiterTask]:
-
+    async def get_tasks(
+        self,
+        start: datetime,
+        end: datetime,
+        status: str,
+    ) -> List[models.RecruiterTask]:
         query = select(self.recruiter_task).options(joinedload(models.RecruiterTask.recruiter))
         if start:
             query = query.where(self.recruiter_task.created_at >= start)
