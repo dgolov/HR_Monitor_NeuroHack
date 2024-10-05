@@ -36,7 +36,7 @@ def create_candidate():
     )
 
 
-def create_vacancy():
+def create_vacancy(recruiter_id: int) -> Vacancy:
     return Vacancy(
         uuid=uuid4(),
         title=fake.job(),
@@ -49,8 +49,8 @@ def create_vacancy():
         viewed_count=random.randint(0, 100),
         responded_count=random.randint(0, 100),
         vacancy_file_id=random.randint(1, 10),
-        creator_id=random.randint(1, 5),
-        recruiter_id=random.randint(1, 5),
+        creator_id=recruiter_id,
+        recruiter_id=recruiter_id,
     )
 
 
@@ -78,7 +78,7 @@ def create_user():
     )
 
 
-def create_interview(candidate_id, recruiter_id, tech_id):
+def create_interview(candidate_id: int, recruiter_id: int, tech_id: int) -> Interview:
     return Interview(
         uuid=uuid4(),
         title=fake.catch_phrase(),
@@ -95,7 +95,7 @@ def create_interview(candidate_id, recruiter_id, tech_id):
     )
 
 
-def create_recruiter_task(recruiter_id):
+def create_recruiter_task(recruiter_id: int) -> RecruiterTask:
     return RecruiterTask(
         uuid=uuid4(),
         type=random.choice(["interview", "screening", "follow-up"]),
@@ -143,7 +143,8 @@ async def populate_database() -> None:
     await session.commit()
 
     for _ in range(10000):
-        session.add(create_vacancy())
+        recruiter = random.choice(recruiters)
+        session.add(create_vacancy(recruiter.id))
     await session.commit()
 
     for _ in range(10000):
@@ -155,8 +156,8 @@ async def populate_database() -> None:
     await session.commit()
 
     for _ in range(6):
-        for i in range(1, 5):
-            session.add(create_recruiter_task(i))
+        recruiter = random.choice(recruiters)
+        session.add(create_recruiter_task(recruiter.id))
 
     await session.commit()
 
@@ -167,6 +168,7 @@ async def populate_database() -> None:
         session.add(create_interview(candidate_id, recruiter.id, tech_id))
 
     for _ in range(4000):
+        recruiter = random.choice(recruiters)
         session.add(create_hire_quality_metrics(recruiter.name))
 
     for _ in range(4000):
