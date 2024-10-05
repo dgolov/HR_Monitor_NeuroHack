@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from faker import Faker
 import random
 from dotenv import load_dotenv
+
+from src.database.db import async_session_maker
 from src.database.models import (Base, Candidate, Vacancy,
                                  VacancyFile, User,
                                  Interview, RecruiterTask, ScreenTimeMetrics,
@@ -14,12 +16,7 @@ from src.database.models import (Base, Candidate, Vacancy,
 load_dotenv()
 fake = Faker()
 
-
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-session = Session()
+session = async_session_maker()
 
 
 def create_candidate():
@@ -30,7 +27,7 @@ def create_candidate():
         other_info={"hobbies": fake.words(3), "experience": fake.job()},
         resume_link=fake.url(),
         status=random.choice(["applied", "interviewed", "hired"]),
-        vacancy_id=random.randint(1, 10)
+        vacancy_id=random.randint(1, 5)
     )
 
 
@@ -122,25 +119,26 @@ def create_screen_time_metrics():
     )
 
 
-def populate_database():
+async def populate_database():
+    for _ in range(10):
+        user = create_user()
+        session.add(user)
+    await session.commit()
+
+    for _ in range(5):
+        session.add(create_vacancy())
+    await session.commit()
+
     for _ in range(10):
         session.add(create_candidate())
 
     for _ in range(5):
-        session.add(create_vacancy())
-
-    for _ in range(5):
         session.add(create_vacancy_file())
 
-    recruiters = []
-    for _ in range(3):
-        user = create_user()
-        session.add(user)
-        recruiters.append(user)
 
     for _ in range(5):
         candidate_id = random.randint(1, 10)
-        recruiter_id = random.choice(recruiters).id
+        recruiter_id = random.randint(1, 10)
         session.add(create_interview(candidate_id, recruiter_id))
 
     for _ in range(500):
@@ -150,13 +148,9 @@ def populate_database():
         session.add(create_screen_time_metrics())
 
 
-    for recruiter in recruiters:
-        session.add(create_recruiter_task(recruiter.id))
-
-    session.commit()
+    await session.commit()
 
 
-if __name__ == "__main__":
-    Base.metadata.create_all(engine)
-    populate_database()
+async def generate_bd():
+    await populate_database()
     print("Данные успешно сгенерированы и записаны в базу!")
