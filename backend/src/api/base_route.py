@@ -9,6 +9,7 @@ from src.api.v1 import (
     vacancy_files_routes,
 )
 from src.settings import logger
+from src.scripts.generate import generate_bd
 
 
 router = APIRouter()
@@ -25,3 +26,10 @@ router.include_router(metrics_routes.router, tags=["metrics"])
 def health_check() -> dict:
     logger.debug("healthcheck")
     return {"message": "Server is running"}
+
+
+@router.get("/init_random_db")
+async def generate_db() -> dict:
+    logger.info('Starting DB randomize')
+    await generate_bd()
+    return {"message": "DB generated"}
