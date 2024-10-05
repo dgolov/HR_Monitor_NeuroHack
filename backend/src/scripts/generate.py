@@ -28,7 +28,7 @@ def create_candidate():
         other_info={"hobbies": fake.words(3), "experience": fake.job()},
         resume_link=fake.url(),
         status=random.choice(["applied", "interviewed", "hired"]),
-        vacancy_id=random.randint(10, 21)
+        vacancy_id=random.randint(1, 10)
     )
 
 
@@ -74,15 +74,15 @@ def create_user():
     )
 
 
-def create_interview(candidate_id, recruiter_id):
+def create_interview(candidate_id, recruiter_id, tech_id):
     return Interview(
         uuid=uuid4(),
         title=fake.catch_phrase(),
         description=fake.text(),
-        candidate_id=1,
+        candidate_id=candidate_id,
         type=random.choice(["tech", "HR"]),
-        recruiter_id=1,
-        tech_id=1,
+        recruiter_id=recruiter_id,
+        tech_id=tech_id,
         status=random.choice(["scheduled", "completed", "canceled"]),
         other_info={"notes": fake.paragraph()},
         created_at=fake.date_this_year(),
@@ -126,21 +126,25 @@ async def populate_database():
         session.add(user)
     await session.commit()
 
-    for _ in range(5):
+    for _ in range(10):
         session.add(create_vacancy())
     await session.commit()
 
     for _ in range(10):
         session.add(create_candidate())
+    await session.commit()
+
 
     for _ in range(5):
         session.add(create_vacancy_file())
+    await session.commit()
 
 
     for _ in range(5):
         candidate_id = random.randint(1, 10)
         recruiter_id = random.randint(1, 10)
-        session.add(create_interview(candidate_id, recruiter_id))
+        tech_id = random.randint(1, 10)
+        session.add(create_interview(candidate_id, recruiter_id, tech_id))
 
     for _ in range(500):
         session.add(create_hire_quality_metrics())
