@@ -1,15 +1,17 @@
-from typing import Any
-from sqlalchemy import Select, select, extract, func
+from typing import Any, List, Optional
+
+from fastapi import HTTPException
+from sqlalchemy import Select, extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.database import models
 from src.schema import schemas
 from src.settings import logger
-from fastapi import HTTPException
-from typing import List, Optional
 
 
 class RepositoryBase:
     """Базовый класс обращения в БД."""
+
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -71,7 +73,7 @@ class Repository(RepositoryBase):
             query = query.where(self.user.role == role)
         return await self._all(query=query)
 
-    async def get_user_by_id(self, user_id: int):
+    async def get_user_by_id(self, user_id: int) -> models.User:
         user = await self.session.get(self.user, user_id)
         if not user:
             logger.warning(f"User {user_id} is not found")
@@ -84,7 +86,9 @@ class Repository(RepositoryBase):
         await self.session.commit()
 
     async def get_vacancies(
-            self, creator_id: Optional[int], status: Optional[str]
+        self,
+        creator_id: Optional[int],
+        status: Optional[str],
     ) -> List[models.Vacancy]:
         query = select(self.vacancy)
         if creator_id:
@@ -93,7 +97,7 @@ class Repository(RepositoryBase):
             query = query.where(self.vacancy.status == status)
         return await self._all(query=query)
 
-    async def get_vacancy_by_id(self, vacancy_id: int):
+    async def get_vacancy_by_id(self, vacancy_id: int) -> models.Vacancy:
         vacancy = await self.session.get(self.vacancy, vacancy_id)
         if not vacancy:
             logger.warning(f"Vacancy {vacancy_id} is not found")
@@ -109,13 +113,13 @@ class Repository(RepositoryBase):
         query = select(self.vacancy_file)
         return await self._all(query=query)
 
-    async def get_vacancy_file_by_id(self, vacancy_file_id: int):
+    async def get_vacancy_file_by_id(self, vacancy_file_id: int) -> models.VacancyFile:
         vacancy_file = await self.session.get(self.vacancy_file, vacancy_file_id)
         if not vacancy_file:
             logger.warning(f"Vacancy file {vacancy_file_id} is not found")
             raise HTTPException(status_code=404, detail="Not found")
         return vacancy_file
-            
+
     async def create_vacancy_file(self, vacancy_file: schemas.VacancyFileCreate) -> None:
         vacancy_file_model = models.VacancyFile(**vacancy_file.model_dump())
         self.session.add(vacancy_file_model)
@@ -130,12 +134,13 @@ class Repository(RepositoryBase):
         return await self._all(query=query)
 
     async def get_interview_by_id(self, interview_id: int) -> models.Interview:
-        interview: models.Interview = self.session.get(self.interview, interview_id)
+        query = select(self.interview).where(self.interview.id == interview_id)
+        interview = await self._one(query)
         if not interview:
             logger.warning(f"Interview {interview_id} is not found")
             raise HTTPException(status_code=404, detail="Not found")
         return interview
-    
+
     async def create_interview(self, interview: schemas.InterviewCreate) -> None:
         interview_model = models.Interview(**interview.model_dump())
         self.session.add(interview_model)
@@ -147,7 +152,7 @@ class Repository(RepositoryBase):
             query = query.where(self.candidate.vacancy_id == vacancy_id)
         return await self._all(query=query)
 
-    async def get_candidate_by_id(self, candidate_id: int):
+    async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:
         candidate = await self.session.get(self.candidate, candidate_id)
         if not candidate:
             logger.warning(f"Candidate {candidate_id} is not found")
@@ -160,20 +165,28 @@ class Repository(RepositoryBase):
         await self.session.commit()
 
     async def get_grouped_vacancies(self):
-        query = self.session.query(
-            extract('year', models.Vacancy.close_at).label('year'),
-            extract('month', models.Vacancy.close_at).label('month'),
-            func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label('average_closure_time'),
-            func.count(models.Vacancy.id).label('vacancies_count')
-        ).filter(
-            models.Vacancy.status == 'closed',
-            models.Vacancy.close_at.isnot(None),
-            models.Vacancy.open_at.isnot(None)
-        ).group_by(
-            extract('year', models.Vacancy.close_at),
-            extract('month', models.Vacancy.close_at)
-        ).order_by(
-            extract('year', models.Vacancy.close_at),
-            extract('month', models.Vacancy.close_at)
-        ).all()
+        query = (
+            self.session.query(
+                extract("year", models.Vacancy.close_at).label("year"),
+                extract("month", models.Vacancy.close_at).label("month"),
+                func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label(
+                    "average_closure_time",
+                ),
+                func.count(models.Vacancy.id).label("vacancies_count"),
+            )
+            .filter(
+                models.Vacancy.status == "closed",
+                models.Vacancy.close_at.isnot(None),
+                models.Vacancy.open_at.isnot(None),
+            )
+            .group_by(
+                extract("year", models.Vacancy.close_at),
+                extract("month", models.Vacancy.close_at),
+            )
+            .order_by(
+                extract("year", models.Vacancy.close_at),
+                extract("month", models.Vacancy.close_at),
+            )
+            .all()
+        )
         return await query.all()
