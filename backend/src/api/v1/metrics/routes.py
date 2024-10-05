@@ -10,7 +10,6 @@ router = APIRouter(prefix="/metrics")
 
 @router.get("/average-hire-time")
 async def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
-
     vacancies = await repository.get_grouped_vacancies()
     grouped_data = {}
 
@@ -26,7 +25,7 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
         if month not in grouped_data[year]:
             grouped_data[year][month] = {
                 "total_closure_time": 0,
-                "vacancies_count": 0
+                "vacancies_count": 0,
             }
 
         grouped_data[year][month]["total_closure_time"] += closure_time
@@ -37,9 +36,9 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
         average_data[year] = {}
         for month, data in months.items():
             average_closure_time = data["total_closure_time"] / data["vacancies_count"]
-            average_data[year][month] = MonthData(
+            average_data[year][month] = schemas.MonthData(
                 average_closure_time_in_days=average_closure_time,
-                vacancies_count=data["vacancies_count"]
+                vacancies_count=data["vacancies_count"],
             )
 
     return schemas.VacancyAverageTimeResponse(data=average_data)
