@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from sqlalchemy import JSON, UUID, Boolean, Column, Date, Float, ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class Base(DeclarativeBase):
@@ -64,7 +64,6 @@ class User(Base):
     employees = relationship("Employee", back_populates="recruiter")
 
 
-
 class RecruiterTask(Base):
     __tablename__ = "recruiter_task"
     id = Column(Integer, primary_key=True)
@@ -79,6 +78,7 @@ class RecruiterTask(Base):
     closed_at = Column(Date)
 
     recruiter = relationship("User")
+
 
 class Interview(Base):
     __tablename__ = "interview"
@@ -97,11 +97,10 @@ class Interview(Base):
     date_end_at = Column(Date)
 
 
-
 class ScreenTimeMetrics(Base):
     __tablename__ = "screen_time_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String())
+    recruiter_name = Column(String(), ForeignKey("user.name"))
     month = Column(Date)
     value = Column(Float)
 
@@ -126,4 +125,3 @@ class Employee(Base):
     recruiter_id = Column(Integer, ForeignKey("user.id"))
 
     recruiter = relationship("User", back_populates="employees")
-
