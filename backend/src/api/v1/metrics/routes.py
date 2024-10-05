@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter
+from pydantic.v1.class_validators import all_kwargs
 
 from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
@@ -309,3 +310,25 @@ async def get_average_manager_rating(
     }
 
     return schemas.RecruiterRatingsResponse(recruiter_data=recruiter_data)
+
+
+@router.get("/average_candidate_to_vacancy")
+async def get_average_candidate_to_vacancy(
+    reference_date: datetime,
+    repository: Repository = repo_dep,
+):
+    """Среднне кол-во откликов на вокансии за 6 месяцев от референс_дэйт"""
+    # Вычисляем дату 6 месяцев назад от заданной даты
+    six_months_ago = reference_date - timedelta(days=6 * 30)
+    # Запрос для получения всех закрытых вакансий за последние 6 месяцев
+
+    closed_vacancies_last_six_month = await repository.get_vacancies(date_start=six_months_ago,
+                                                     date_end=reference_date)
+
+    # Подсчитываем кол-во кандидатов на 1 вакансию
+
+    all_candidates = [len(await repository.get_candidates(vacancy_id=vacancy.id))
+                         for vacancy in closed_vacancies_last_six_month]
+
+    average_candidate_to_vacancy = sum(all_candidates) / len(closed_vacancies_last_six_month)
+    return average_candidate_to_vacancy
