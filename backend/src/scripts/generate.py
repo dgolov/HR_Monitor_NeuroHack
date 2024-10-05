@@ -155,8 +155,8 @@ async def populate_database() -> None:
     await session.commit()
 
     for _ in range(6):
-        for i in range(1, 5):
-            session.add(create_recruiter_task(i))
+        recruiter = random.choice(recruiters)
+        session.add(create_recruiter_task(recruiter.id))
 
     await session.commit()
 
