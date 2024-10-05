@@ -130,16 +130,22 @@ async def populate_database() -> None:
         session.add(user)
     await session.commit()
 
-    for _ in range(10):
+    for _ in range(1000):
         session.add(create_vacancy())
     await session.commit()
 
-    for _ in range(10):
+    for _ in range(10000):
         session.add(create_candidate())
     await session.commit()
 
     for _ in range(5):
         session.add(create_vacancy_file())
+    await session.commit()
+
+    for _ in range(6):
+        for i in range(1, 5):
+            session.add(create_recruiter_task(i))
+
     await session.commit()
 
     for _ in range(5):
