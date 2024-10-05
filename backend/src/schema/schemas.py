@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime
+from typing import Dict
 
 from pydantic import UUID4, BaseModel, ConfigDict
-from typing import Dict
 
 
 class Base(BaseModel):
@@ -128,3 +128,9 @@ class MonthData(BaseModel):
 
 class VacancyAverageTimeResponse(BaseModel):
     data: Dict[int, Dict[int, MonthData]]
+
+
+class ScreenTimeMetrics(BaseModel):
+    recruiter_name: str
+    month: int
+    screen_time: float

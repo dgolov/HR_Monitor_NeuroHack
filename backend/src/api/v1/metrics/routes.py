@@ -29,3 +29,10 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
         }
 
     return schemas.VacancyAverageTimeListResponse(data=result)
+
+
+@router.get("screen-time")
+async def screen_time(repository: Repository = repo_dep) -> list[schemas.ScreenTimeMetrics]:
+    screen_time_data = await repository.get_screen_time_data()
+
+    return [recruiter.dict() for recruiter in screen_time_data]
