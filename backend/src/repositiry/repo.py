@@ -103,8 +103,10 @@ class Repository(RepositoryBase):
         self.session.add(interview_model)
         await self.session.commit()
 
-    async def get_candidates(self) -> list[models.Candidate]:
+    async def get_candidates(self, vacancy_id: int) -> list[models.Candidate]:
         query = select(self.candidate)
+        if vacancy_id:
+            query = query.where(self.candidate.vacancy_id == vacancy_id)
         return await self._all(query=query)
 
     async def create_candidate(self, candidate: schemas.CandidateCreate) -> None:

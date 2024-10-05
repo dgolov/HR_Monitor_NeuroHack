@@ -5,6 +5,7 @@ from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
 from src.schema import schemas
 from src.settings import logger
+from src.database import models
 
 
 router = APIRouter(prefix="/candidates")
@@ -25,7 +26,8 @@ async def create_candidate(
 
 @router.get("/candidates/{vacancy_id}")
 async def get_candidates(
-    vacancy_id: int,
-) -> list[schemas.Candidate]:
-    logger.debug(f"route /candidates/ called with {vacancy_id=}")
-    # TODO
+        vacancy_id: int
+):
+    log.debug(f'route /candidates/ called with {vacancy_id=}')
+    candidates_list: List[models.Candidate] = await repository.get_candidates(vacancy_id=vacancy_id)
+    return list(schemas.Candidate.from_orm(candidate) for candidate in candidates_list)
