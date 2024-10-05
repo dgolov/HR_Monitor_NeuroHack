@@ -31,7 +31,7 @@ def create_candidate():
         is_referral=random.choice([True, False]),
         other_info={"hobbies": fake.words(3), "experience": fake.job()},
         resume_link=fake.url(),
-        status=random.choice(["applied", "interviewed", "hired"]),
+        status=random.choice(["applied", "interviewed", "hired","hired","hired", "decline_offer"]),
         vacancy_id=random.randint(1, 10),
     )
 
