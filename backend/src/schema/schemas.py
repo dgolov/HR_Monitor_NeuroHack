@@ -10,7 +10,7 @@ class Base(BaseModel):
 
 
 class User(Base):
-    uuid: str
+    uuid: UUID4
     name: str
     email: str
     role: str
@@ -106,7 +106,7 @@ class Candidate(Base):
     uuid: UUID4
     name: str
     is_referral: bool
-    other_info: str
+    other_info: dict
     resume_link: str
     status: str
     vacancy_id: int
@@ -115,7 +115,7 @@ class Candidate(Base):
 class CandidateCreate(Base):
     name: str
     is_referral: bool = False
-    other_info: str
+    other_info: dict
     resume_link: str
     status: str
     vacancy_id: int
