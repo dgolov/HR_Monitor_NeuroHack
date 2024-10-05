@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import UUID4, BaseModel, ConfigDict
 
@@ -17,6 +17,9 @@ class User(Base):
     phone: str
     is_verified: bool
     is_active: bool
+
+    class Config:
+        from_attributes = True
 
 
 class UserCreate(Base):
@@ -161,12 +164,16 @@ class EmployeeCountResponse(BaseModel):
 
 
 class RecruiterTask(BaseModel):
-    uuid: UUID4= uuid.uuid4()
+    uuid: UUID4=uuid.uuid4()
     type: str
-    recruiter_id: User
+    recruiter_id: int
     description: str
     status: str
     priority: int
     created_at: datetime
     started_at: datetime
     closed_at: datetime
+    recruiter: Optional[User]  # Include recruiter info
+
+    class Config:
+        from_attributes = True

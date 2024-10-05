@@ -4,6 +4,7 @@ from typing import Any, List, Optional
 from fastapi import HTTPException
 from sqlalchemy import Select, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from src.database import models
 from src.schema import schemas
@@ -275,7 +276,7 @@ class Repository(RepositoryBase):
                         status: str
                         ) -> List[models.RecruiterTask]:
 
-        query = select(self.recruiter_task)
+        query = select(self.recruiter_task).options(joinedload(models.RecruiterTask.recruiter))
         if start:
             query = query.where(self.recruiter_task.created_at >= start)
         else:
