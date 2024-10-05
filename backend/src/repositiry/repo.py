@@ -197,3 +197,13 @@ class Repository(RepositoryBase):
             )
         )
         return await self._all(query=query)
+
+    async def get_fired_employees_by_month(self, first_day_of_month, first_day_next_month, six_months_ago):
+        query = select(models.Employee).filter(
+            and_(
+                models.Employee.date_fired >= first_day_of_month,
+                models.Employee.date_fired < first_day_next_month,
+                models.Employee.date_fired >= six_months_ago
+            )
+        )
+        return await self._all(query=query)
