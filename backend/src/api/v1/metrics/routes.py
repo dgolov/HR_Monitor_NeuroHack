@@ -144,10 +144,9 @@ async def referal_count(
         date_start=date_start,
         date_end=date_end,
     )
-    # Подсчитываем количество рефералов и нерефералов
     total_hired = len(hired_candidates)
     referral_count = sum(1 for candidate in hired_candidates if candidate.is_referral)
-    non_referral_count = total_hired - referral_count  # Разность даст количество нерефералов
+    non_referral_count = total_hired - referral_count
 
     return schemas.ReferralCountResponse(
         total_hired=total_hired,
@@ -157,9 +156,18 @@ async def referal_count(
 
 
 @router.get("/hired-to-rejected")
-async def hired_to_rejected(repository: Repository = repo_dep):
-    hired_candidates = await repository.get_candidates(vacancy_id=None, status="hired")
-    rejected_candidates = await repository.get_candidates(vacancy_id=None, status="rejected")
+async def hired_to_rejected(
+    recruiter_id: str | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> schemas.HiredRejectedResponse:
+    hired_candidates = await repository.get_candidates(
+        vacancy_id=None, status="hired", recruiter_id=recruiter_id, date_start=date_start, date_end=date_end
+    )
+    rejected_candidates = await repository.get_candidates(
+        vacancy_id=None, status="rejected", recruiter_id=recruiter_id, date_start=date_start, date_end=date_end
+    )
     total_hired = len(hired_candidates) + len(rejected_candidates)
 
     return schemas.HiredRejectedResponse(
