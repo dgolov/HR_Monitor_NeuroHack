@@ -30,7 +30,7 @@ class UserCreate(Base):
 
 
 class Vacancy(Base):
-    uuid: str
+    uuid: UUID4
     description: str
     status: str
     created_at: datetime
