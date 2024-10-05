@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from src.api.v1 import candidates_routes, interviews_routes, user_routes, vacancies_routes, vacancy_files_routes
 from src.settings import logger
 
@@ -13,6 +14,6 @@ router.include_router(vacancy_files_routes.router, tags=["vacancy_files"])
 
 
 @router.get("/health")
-def health_check():
-    logger.debug('healthcheck')
+def health_check() -> dict:
+    logger.debug("healthcheck")
     return {"message": "Server is running"}

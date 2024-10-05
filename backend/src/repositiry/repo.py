@@ -1,17 +1,19 @@
+from typing import Any
+from sqlalchemy import Select, select, extract, func
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.database import models
 from src.schema import schemas
 from src.settings import logger
 from fastapi import HTTPException
-from sqlalchemy import select
 from typing import List, Optional
 
 
 class RepositoryBase:
-    """ Базовый класс обращения в БД """
-    def __init__(self, session):
+    """Базовый класс обращения в БД."""
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def _all(self, query):
+    async def _all(self, query: Select) -> list[Any]:
         query_result = await self.session.execute(query)
         rows = query_result.all()
         return [data[0] for data in rows if data[0]]
@@ -28,7 +30,7 @@ class RepositoryBase:
     async def _one(result):
         return result.one()
 
-    async def _insert_one(self, model: models.Base) -> None:
+    async def _insert_one(self, model: Any) -> None:
         try:
             self.session.add(model)
             await self.session.commit()
@@ -36,14 +38,14 @@ class RepositoryBase:
             logger.error(f"Add {model.__tablename__} error - {e}")
             raise HTTPException(status_code=400, detail="Bad request")
 
-    async def _update(self, obj, data):
+    async def _update(self, obj, data) -> None:
         if not isinstance(data, dict):
             data = data.dict()
         for field, value in data.items():
             setattr(obj, field, value)
         await self.session.commit()
 
-    async def _delete(self, obj):
+    async def _delete(self, obj) -> None:
         await self.session.delete(obj)
         await self.session.commit()
 
@@ -69,14 +71,14 @@ class Repository(RepositoryBase):
             query = query.where(self.user.role == role)
         return await self._all(query=query)
 
-    async def get_user_by_id(self, user_id: int) -> models.User:
-        user: models.User = self.session.get(self.user, user_id)
+    async def get_user_by_id(self, user_id: int):
+        user = await self.session.get(self.user, user_id)
         if not user:
             logger.warning(f"User {user_id} is not found")
             raise HTTPException(status_code=404, detail="Not found")
         return user
 
-    async def create_user(self, user: schemas.UserCreate):
+    async def create_user(self, user: schemas.UserCreate) -> None:
         user_model = models.User(**user.model_dump())
         self.session.add(user_model)
         await self.session.commit()
@@ -91,14 +93,14 @@ class Repository(RepositoryBase):
             query = query.where(self.vacancy.status == status)
         return await self._all(query=query)
 
-    async def get_vacancy_by_id(self, vacancy_id: int) -> models.Vacancy:
-        vacancy: models.Vacancy = self.session.get(self.vacancy, vacancy_id)
+    async def get_vacancy_by_id(self, vacancy_id: int):
+        vacancy = await self.session.get(self.vacancy, vacancy_id)
         if not vacancy:
             logger.warning(f"Vacancy {vacancy_id} is not found")
             raise HTTPException(status_code=404, detail="Not found")
         return vacancy
-    
-    async def create_vacancy(self, vacancy: schemas.VacancyCreate):
+
+    async def create_vacancy(self, vacancy: schemas.VacancyCreate) -> None:
         vacancy_model = models.Vacancy(**vacancy.model_dump())
         self.session.add(vacancy_model)
         await self.session.commit()
@@ -107,14 +109,14 @@ class Repository(RepositoryBase):
         query = select(self.vacancy_file)
         return await self._all(query=query)
 
-    async def get_vacancy_file_by_id(self, vacancy_file_id: int) -> models.VacancyFile:
-        vacancy_file: models.VacancyFile = self.session.get(self.vacancy_file, vacancy_file_id)
+    async def get_vacancy_file_by_id(self, vacancy_file_id: int):
+        vacancy_file = await self.session.get(self.vacancy_file, vacancy_file_id)
         if not vacancy_file:
             logger.warning(f"Vacancy file {vacancy_file_id} is not found")
             raise HTTPException(status_code=404, detail="Not found")
         return vacancy_file
             
-    async def create_vacancy_file(self, vacancy_file: schemas.VacancyFileCreate):
+    async def create_vacancy_file(self, vacancy_file: schemas.VacancyFileCreate) -> None:
         vacancy_file_model = models.VacancyFile(**vacancy_file.model_dump())
         self.session.add(vacancy_file_model)
         await self.session.commit()
@@ -134,23 +136,44 @@ class Repository(RepositoryBase):
             raise HTTPException(status_code=404, detail="Not found")
         return interview
     
-    async def create_interview(self, interview: schemas.InterviewCreate):
+    async def create_interview(self, interview: schemas.InterviewCreate) -> None:
         interview_model = models.Interview(**interview.model_dump())
         self.session.add(interview_model)
         await self.session.commit()
 
-    async def get_candidates(self) -> List[models.Candidate]:
+    async def get_candidates(self, vacancy_id: int) -> list[models.Candidate]:
         query = select(self.candidate)
+        if vacancy_id:
+            query = query.where(self.candidate.vacancy_id == vacancy_id)
         return await self._all(query=query)
 
-    async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:
-        candidate: models.Candidate = self.session.get(self.candidate, candidate_id)
+    async def get_candidate_by_id(self, candidate_id: int):
+        candidate = await self.session.get(self.candidate, candidate_id)
         if not candidate:
             logger.warning(f"Candidate {candidate_id} is not found")
             raise HTTPException(status_code=404, detail="Not found")
         return candidate
-    
-    async def create_candidate(self, candidate: schemas.CandidateCreate):
+
+    async def create_candidate(self, candidate: schemas.CandidateCreate) -> None:
         candidate_model = models.Candidate(**candidate.model_dump())
         self.session.add(candidate_model)
         await self.session.commit()
+
+    async def get_grouped_vacancies(self):
+        query = self.session.query(
+            extract('year', models.Vacancy.close_at).label('year'),
+            extract('month', models.Vacancy.close_at).label('month'),
+            func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label('average_closure_time'),
+            func.count(models.Vacancy.id).label('vacancies_count')
+        ).filter(
+            models.Vacancy.status == 'closed',
+            models.Vacancy.close_at.isnot(None),
+            models.Vacancy.open_at.isnot(None)
+        ).group_by(
+            extract('year', models.Vacancy.close_at),
+            extract('month', models.Vacancy.close_at)
+        ).order_by(
+            extract('year', models.Vacancy.close_at),
+            extract('month', models.Vacancy.close_at)
+        ).all()
+        return await query.all()
