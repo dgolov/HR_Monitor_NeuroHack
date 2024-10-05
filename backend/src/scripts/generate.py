@@ -1,5 +1,5 @@
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 
 from faker import Faker
@@ -14,6 +14,7 @@ from src.database.models import (
     User,
     Vacancy,
     VacancyFile,
+    Employee
 )
 from src.settings import logger
 
@@ -124,6 +125,17 @@ def create_screen_time_metrics():
     )
 
 
+def create_employee():
+    return Employee(
+        name=fake.name(),
+        date_started=fake.date_between(datetime(2023, 1, 1), datetime.now()-timedelta(days=365)),
+        date_fired=fake.date_between(datetime(2024, 1, 1), datetime.now()),
+        position=fake.catch_phrase(),
+        cost_of_hiring=random.randrange(100, 400),
+        manager_rating=random.randint(1, 6),
+        recruiter_id=random.randint(1, 5)
+    )
+
 async def populate_database() -> None:
     for _ in range(10):
         user = create_user()
@@ -159,6 +171,9 @@ async def populate_database() -> None:
 
     for _ in range(4000):
         session.add(create_screen_time_metrics())
+
+    for _ in range(100):
+        session.add(create_employee())
 
     await session.commit()
 
