@@ -8,7 +8,7 @@ from src.schema import schemas
 router = APIRouter(prefix="/metrics")
 
 
-@router.get("/average_hire_time")
+@router.get("/average-hire-time")
 async def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
     # Группируем вакансии по году и месяцу закрытия
 
