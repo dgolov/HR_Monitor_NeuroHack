@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Dict
 
 from pydantic import UUID4, BaseModel, ConfigDict
@@ -133,14 +133,14 @@ class VacancyAverageTimeResponse(BaseModel):
 class ScreenTimeMetrics(BaseModel):
     id: int
     recruiter_name: str
-    month: datetime
+    month: date
     value: float
 
 
 class HireQualityMetrics(BaseModel):
     id: int
     recruiter_name: str
-    month: datetime
+    month: date
     value: float
 
 
