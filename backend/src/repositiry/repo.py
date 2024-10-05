@@ -73,6 +73,8 @@ class Repository(RepositoryBase):
     screen_time = models.ScreenTimeMetrics
     hire_quality = models.HireQualityMetrics
     recruiter_task = models.RecruiterTask
+    hire_time = models.HireTimeMetrics
+    vacancy_cost = models.VacancyCostMetrics
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
@@ -229,6 +231,28 @@ class Repository(RepositoryBase):
             )
         return await self._all(query=query)
 
+    async def get_hire_time_data(
+        self,
+        recruiter_name: str | None = None,
+        recruiter_id: int | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+    ) -> list[models.HireTimeMetrics]:
+        query = select(self.hire_time)
+        if recruiter_name:
+            query = query.where(self.hire_time.recruiter_name == recruiter_name)
+        elif recruiter_id:
+            query = query.join(self.user).where(self.user.id == recruiter_id)
+        if date_start and date_end:
+            query = query.where(
+                and_(
+                    self.hire_time.month >= date_start,
+                    self.hire_time.month <= date_end,
+                ),
+            )
+        query = query.order_by(self.hire_time.month)
+        return await self._all(query=query)
+
     async def get_screen_time_data(
         self,
         recruiter_name: str | None = None,
@@ -270,6 +294,28 @@ class Repository(RepositoryBase):
                     self.hire_quality.month <= date_end,
                 ),
             )
+        return await self._all(query=query)
+
+    async def get_vacancy_cost_data(
+        self,
+        recruiter_name: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        recruiter_id: int | None = None,
+    ) -> list[models.VacancyCostMetrics]:
+        query = select(self.vacancy_cost)
+        if recruiter_name:
+            query = query.where(self.vacancy_cost.recruiter_name == recruiter_name)
+        elif recruiter_id:
+            query = query.join(self.user).where(self.user.id == recruiter_id)
+        if date_start and date_end:
+            query = query.where(
+                and_(
+                    self.vacancy_cost.month >= date_start,
+                    self.vacancy_cost.month <= date_end,
+                ),
+            )
+        query = query.order_by(self.vacancy_cost.month)
         return await self._all(query=query)
 
     async def get_fired_employees(self, reference_date: datetime, six_months_ago: datetime) -> List[models.Employee]:

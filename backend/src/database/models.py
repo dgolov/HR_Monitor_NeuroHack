@@ -113,6 +113,22 @@ class HireQualityMetrics(Base):
     value = Column(Float)
 
 
+class HireTimeMetrics(Base):
+    __tablename__ = "hire_time_metrics"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    recruiter_name = Column(String(), ForeignKey("user.name"))
+    month = Column(Date)
+    value = Column(Float)
+
+
+class VacancyCostMetrics(Base):
+    __tablename__ = "vacancy_cost_metrics"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    recruiter_name = Column(String(), ForeignKey("user.name"))
+    month = Column(Date)
+    value = Column(Float)
+
+
 class Employee(Base):
     __tablename__ = "employee"
     id = Column(Integer, primary_key=True, autoincrement=True)

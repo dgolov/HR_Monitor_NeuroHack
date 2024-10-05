@@ -140,7 +140,21 @@ class ScreenTimeMetrics(BaseModel):
     value: float
 
 
+class HireTimeMetrics(BaseModel):
+    id: int
+    recruiter_name: str
+    month: date
+    value: float
+
+
 class HireQualityMetrics(BaseModel):
+    id: int
+    recruiter_name: str
+    month: date
+    value: float
+
+
+class VacancyCostMetrics(BaseModel):
     id: int
     recruiter_name: str
     month: date

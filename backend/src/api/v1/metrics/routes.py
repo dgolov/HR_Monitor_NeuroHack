@@ -57,6 +57,18 @@ async def average_hire_time(
     return schemas.VacancyAverageTimeResponse(data=average_data)
 
 
+@router.get("/hire-time")
+async def hire_time(
+    recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> list[schemas.HireTimeMetrics]:
+    """Время закрытия вакансии по рекрутеру за период."""
+    return await repository.get_hire_time_data(recruiter_name, date_start, date_end, recruiter_id)
+
+
 @router.get("/screen-time")
 async def screen_time(
     recruiter_name: str | None = None,
@@ -85,6 +97,18 @@ async def hire_quality(
 
 
 @router.get("/vacancy-cost")
+async def vacancy_cost(
+    recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> list[schemas.VacancyCostMetrics]:
+    """Средняя стоимость закрытия вакансии по рекрутеру за период."""
+    return await repository.get_vacancy_cost_data(recruiter_name, date_start, date_end, recruiter_id)
+
+
+@router.get("/avarage-vacancy-cost")
 async def vacancy_cost(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
