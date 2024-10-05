@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 
 from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
@@ -150,8 +150,8 @@ async def hired_to_rejected(repository: Repository = repo_dep):
 
 @router.get("/soon-fired")
 async def get_fired_employees_count(
+    reference_date: datetime,
     repository: Repository = repo_dep,
-    reference_date: datetime = Query(None),
 ):
     # Вычисляем дату 6 месяцев назад от заданной даты
     six_months_ago = reference_date - timedelta(days=6 * 30)
