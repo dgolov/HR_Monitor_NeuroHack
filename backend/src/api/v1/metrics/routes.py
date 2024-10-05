@@ -155,7 +155,6 @@ async def vacancy_cost(
                                                                               "total_salary"] / \
                                                                           grouped_data[recruiter_name][year][month][
                                                                               "vacancies_count"]
-    print(grouped_data)
     return grouped_data
 
 
