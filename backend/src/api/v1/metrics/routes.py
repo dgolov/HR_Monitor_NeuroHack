@@ -7,6 +7,7 @@ from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
 from src.schema import schemas
 
+
 router = APIRouter(prefix="/metrics")
 
 
@@ -226,8 +227,7 @@ async def get_fired_employees_count(
 
     # Подсчитываем тех, кто проработал менее 6 месяцев
     count_fired_less_than_6_months = sum(
-        (employee.date_fired - employee.date_started).days < 6 * 30
-        for employee in fired_employees
+        (employee.date_fired - employee.date_started).days < 6 * 30 for employee in fired_employees
     )
 
     return schemas.EmployeeCountResponse(
