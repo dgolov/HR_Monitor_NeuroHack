@@ -35,6 +35,7 @@ class Vacancy(Base):
     responded_count = Column(Integer, default=0)
     vacancy_file_id = Column(Integer)
     creator_id = Column(Integer)
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
 
 
 class VacancyFile(Base):
@@ -58,6 +59,7 @@ class User(Base):
     phone = Column(String())
     is_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+    salary = Column(Integer)
 
 
 class Interview(Base):
