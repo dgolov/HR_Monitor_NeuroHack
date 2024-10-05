@@ -1,11 +1,11 @@
 from collections import defaultdict
+from datetime import datetime, timedelta
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
 from src.schema import schemas
-
 
 router = APIRouter(prefix="/metrics")
 
@@ -144,4 +144,25 @@ async def hired_to_rejected(repository: Repository = repo_dep):
         total_count=total_hired,
         hired_count=len(hired_candidates),
         rejected_count=len(rejected_candidates),
+    )
+
+
+@router.get("/soon_fired")
+async def get_fired_employees_count(repository: Repository = repo_dep,
+                                    reference_date: datetime = Query(None),
+                                    ):
+    # Вычисляем дату 6 месяцев назад от заданной даты
+    six_months_ago = reference_date - timedelta(days=6 * 30)
+    # Запрос для получения сотрудников, уволенных за последние 6 месяцев
+
+    fired_employees = await repository.get_fired_employees(reference_date, six_months_ago)
+
+    # Подсчитываем тех, кто проработал менее 6 месяцев
+    count_fired_less_than_6_months = sum(
+        1 for employee in fired_employees
+        if employee.date_started and (employee.date_fired - employee.date_started).days < 6 * 30
+    )
+
+    return schemas.EmployeeCountResponse(
+        total_fired_less_than_6_months=count_fired_less_than_6_months
     )

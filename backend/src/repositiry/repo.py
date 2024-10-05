@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 
 from fastapi import HTTPException
-from sqlalchemy import Select, select
+from sqlalchemy import Select, select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import models
@@ -187,4 +187,13 @@ class Repository(RepositoryBase):
 
     async def get_hire_quality_data(self) -> List[models.HireQualityMetrics]:
         query = select(self.hire_quality)
+        return await self._all(query=query)
+
+    async def get_fired_employees(self, reference_date, six_months_ago):
+        query = select(models.Employee).filter(
+            and_(
+                models.Employee.date_fired >= six_months_ago,
+                models.Employee.date_fired <= reference_date
+            )
+        )
         return await self._all(query=query)

@@ -154,3 +154,7 @@ class HiredRejectedResponse(BaseModel):
     total_count: int
     hired_count: int
     rejected_count: int
+
+
+class EmployeeCountResponse(BaseModel):
+    total_fired_less_than_6_months: int
