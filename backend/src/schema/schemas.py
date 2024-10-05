@@ -1,10 +1,14 @@
+import uuid
 from datetime import datetime
 
-import uuid
-from pydantic import BaseModel, UUID4
+from pydantic import UUID4, BaseModel, ConfigDict
 
 
-class User(BaseModel):
+class Base(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class User(Base):
     uuid: str
     name: str
     email: str
@@ -14,7 +18,7 @@ class User(BaseModel):
     is_active: bool
 
 
-class UserCreate(BaseModel):
+class UserCreate(Base):
     name: str
     password_hash: str
     email: str
@@ -24,7 +28,7 @@ class UserCreate(BaseModel):
     is_active: bool
 
 
-class Vacancy(BaseModel):
+class Vacancy(Base):
     uuid: str
     description: str
     status: str
@@ -38,21 +42,21 @@ class Vacancy(BaseModel):
     creator_id: int
 
 
-class VacancyCreate(BaseModel):
+class VacancyCreate(Base):
     uuid: UUID4 = uuid.uuid4()
     description: str
-    status: str = 'blank'
+    status: str = "blank"
     created_at: datetime = datetime.now()
     open_at: datetime | None = None
     updated_at: datetime | None = None
     close_at: datetime | None = None
     viewed_count: int = 0
     responded_count: int = 0
-    vacancy_file_id: int  | None = None
+    vacancy_file_id: int | None = None
     creator_id: int
 
 
-class VacancyFile(BaseModel):
+class VacancyFile(Base):
     uuid: UUID4 = uuid.uuid4()
     name: str
     description: str
@@ -60,43 +64,43 @@ class VacancyFile(BaseModel):
     created_at: datetime
 
 
-class VacancyFileCreate(BaseModel):
+class VacancyFileCreate(Base):
     name: str
     description: str
     link: str
     created_at: datetime = datetime.now()
 
 
-class Interview(BaseModel):
-    id : int
-    uuid : UUID4
-    title : str
-    description : str
-    candidate_id : int
-    type : str
-    recruiter_id : int
-    tech_id : int
-    status : str
-    other_info : str
-    created_at : datetime
-    date_start_at : datetime
-    date_end_at : datetime
+class Interview(Base):
+    id: int
+    uuid: UUID4
+    title: str
+    description: str
+    candidate_id: int
+    type: str
+    recruiter_id: int
+    tech_id: int
+    status: str
+    other_info: str
+    created_at: datetime
+    date_start_at: datetime
+    date_end_at: datetime
 
 
-class InterviewCreate(BaseModel):
-    description : str
-    candidate_id : int
-    type : str
-    recruiter_id : int
-    tech_id : int
-    status : str
-    other_info : str
-    created_at : datetime = datetime.now()
-    date_start_at : datetime | None = None
-    date_end_at : datetime | None = None
+class InterviewCreate(Base):
+    description: str
+    candidate_id: int
+    type: str
+    recruiter_id: int
+    tech_id: int
+    status: str
+    other_info: str
+    created_at: datetime = datetime.now()
+    date_start_at: datetime | None = None
+    date_end_at: datetime | None = None
 
 
-class Candidate(BaseModel):
+class Candidate(Base):
     id: int
     uuid: UUID4
     name: str
@@ -107,7 +111,7 @@ class Candidate(BaseModel):
     vacancy_id: int
 
 
-class CandidateCreate(BaseModel):
+class CandidateCreate(Base):
     name: str
     is_referral: bool = False
     other_info: str
