@@ -18,7 +18,7 @@ class Candidate(Base):
     other_info = Column(JSON)
     resume_link = Column(String())
     status = Column(String())
-    vacancy_id = Column(Integer)
+    vacancy_id = Column(Integer, ForeignKey("vacancy.id"))
     
 class Vacancy(Base):
     __tablename__ = "vacancy"

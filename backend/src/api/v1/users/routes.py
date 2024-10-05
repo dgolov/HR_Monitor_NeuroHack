@@ -28,12 +28,3 @@ async def create_user(
         content={"message": "Ok"},
         status_code=status.HTTP_201_CREATED
     )
-
-
-@router.get('/{user_id}')
-async def get_user(
-        user_id: int,
-        role: str = Query(None),
-):
-    logger.debug(f'get user by id {user_id}, role={role}')
-    pass  # todo
