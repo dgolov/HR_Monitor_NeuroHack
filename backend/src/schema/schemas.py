@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from pydantic import UUID4, BaseModel, ConfigDict
+from typing import Dict
 
 
 class Base(BaseModel):
@@ -118,3 +119,12 @@ class CandidateCreate(Base):
     resume_link: str
     status: str
     vacancy_id: int
+
+
+class MonthData(BaseModel):
+    average_closure_time_in_days: float
+    vacancies_count: int
+
+
+class VacancyAverageTimeResponse(BaseModel):
+    data: Dict[int, Dict[int, MonthData]]

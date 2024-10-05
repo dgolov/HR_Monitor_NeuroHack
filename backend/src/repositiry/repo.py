@@ -2,6 +2,7 @@ from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import Select, select
+from sqlalchemy import extract, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import models
@@ -76,7 +77,7 @@ class Repository(RepositoryBase):
         self.session.add(user_model)
         await self.session.commit()
 
-    async def get_vacancies(self) -> list[models.Vacancy]:
+    async def get_vacancies(self, **filter_params) -> list[models.Vacancy]:
         query = select(self.vacancy)
         return await self._all(query=query)
 
@@ -113,3 +114,22 @@ class Repository(RepositoryBase):
         candidate_model = models.Candidate(**candidate.model_dump())
         self.session.add(candidate_model)
         await self.session.commit()
+
+    async def get_grouped_vacancies(self):
+        query = self.session.query(
+            extract('year', models.Vacancy.close_at).label('year'),
+            extract('month', models.Vacancy.close_at).label('month'),
+            func.avg(func.julianday(models.Vacancy.close_at) - func.julianday(models.Vacancy.open_at)).label('average_closure_time'),
+            func.count(models.Vacancy.id).label('vacancies_count')
+        ).filter(
+            models.Vacancy.status == 'closed',
+            models.Vacancy.close_at.isnot(None),
+            models.Vacancy.open_at.isnot(None)
+        ).group_by(
+            extract('year', models.Vacancy.close_at),
+            extract('month', models.Vacancy.close_at)
+        ).order_by(
+            extract('year', models.Vacancy.close_at),
+            extract('month', models.Vacancy.close_at)
+        ).all()
+        return await query.all()
