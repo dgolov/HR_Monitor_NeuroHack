@@ -1,0 +1,27 @@
+<template>
+  <div id="app">
+    <AppNavbar />
+    <BarChart />
+  </div>
+</template>
+
+<script>
+import AppNavbar from './components/AppNavbar.vue';
+import BarChart from './components/BarChart.vue';
+
+export default {
+  name: 'App',
+  components: {
+    BarChart,
+    AppNavbar
+  }
+};
+</script>
+
+<style>
+/* Основные стили */
+#app {
+  text-align: center;
+}
+</style>
+
