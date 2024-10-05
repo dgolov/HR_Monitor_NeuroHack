@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Sequence
 
 from fastapi import HTTPException
-from sqlalchemy import Select, and_, select
+from sqlalchemy import Row, Select, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import models
@@ -21,11 +21,11 @@ class RepositoryBase:
         rows = query_result.all()
         return [data[0] for data in rows if data[0]]
 
-    async def _all_special(self, query: Select) -> list[Any]:
+    async def _all_special(self, query: Select) -> Sequence[Row[Any]]:
         query_result = await self.session.execute(query)
         return query_result.all()
 
-    async def _first(self, query):
+    async def _first(self, query: Select) -> Optional[Any]:
         query_result = await self.session.execute(query)
         result = query_result.first()
         if result:
