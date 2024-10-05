@@ -12,7 +12,7 @@ router = APIRouter(prefix="/metrics")
 def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
     # Группируем вакансии по году и месяцу закрытия
 
-    grouped_vacancies = repository.get_grouped_vacancies
+    grouped_vacancies = await repository.get_grouped_vacancies
     result = {}
     for entry in grouped_vacancies:
         year = entry.year
