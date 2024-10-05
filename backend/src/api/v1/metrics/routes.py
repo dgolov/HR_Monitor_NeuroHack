@@ -1,16 +1,17 @@
+from collections import defaultdict
+
 from fastapi import APIRouter
 
 from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
 from src.schema import schemas
-from collections import defaultdict
+
 
 router = APIRouter(prefix="/metrics")
 
 
 @router.get("/average-hire-time")
 async def average_hire_time(repository: Repository = repo_dep) -> schemas.VacancyAverageTimeResponse:
-
     vacancies = await repository.get_grouped_vacancies()
     grouped_data = {}
 
@@ -48,19 +49,18 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
 @router.get("screen-time")
 async def screen_time(repository: Repository = repo_dep) -> list[schemas.ScreenTimeMetrics]:
     screen_time_data = await repository.get_screen_time_data()
-    return [recruiter.dict() for recruiter in screen_time_data]
+    return [schemas.ScreenTimeMetrics.model_validate(recruiter) for recruiter in screen_time_data]
 
 
 @router.get("/hire-quality")
 async def hire_quality(repository: Repository = repo_dep) -> list[schemas.HireQualityMetrics]:
     hire_quality_data = await repository.get_hire_quality_data()
-    return [recruiter.dict() for recruiter in hire_quality_data]
+    return [schemas.HireQualityMetrics.model_validate(recruiter) for recruiter in hire_quality_data]
 
 
 @router.get("/vacancy_cost")
 async def vacancy_cost(repository: Repository = repo_dep):
-    '''
-    Пример ответа {
+    """Пример ответа {
     "2024": {
         "1": {
             "average_vacancy_cost": 1500.0
@@ -74,13 +74,19 @@ async def vacancy_cost(repository: Repository = repo_dep):
             "average_vacancy_cost": 1800.0
         }
     }
-}
-    '''
-    closed_vacancies = await repository.get_vacancies(status='closed', creator_id=None)
-    grouped_data = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: {
-            "total_salary": 0,
-            "vacancies_count": 0
-        })))
+    }.
+    """
+    closed_vacancies = await repository.get_vacancies(status="closed", creator_id=None)
+    grouped_data = defaultdict(
+        lambda: defaultdict(
+            lambda: defaultdict(
+                lambda: {
+                    "total_salary": 0,
+                    "vacancies_count": 0,
+                },
+            ),
+        ),
+    )
 
     for vacancy in closed_vacancies:
         if vacancy.close_at:  # Проверяем, что дата закрытия существует
@@ -107,7 +113,7 @@ async def vacancy_cost(repository: Repository = repo_dep):
                 if vacancies_count > 0:
                     average_salary = total_salary / vacancies_count
                     average_data[year][month] = {
-                        "average_vacancy_cost": average_salary
+                        "average_vacancy_cost": average_salary,
                     }
 
     return dict(average_data)
