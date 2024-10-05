@@ -4,3 +4,4 @@ from src.api.v1.users import routes as user_routes
 from src.api.v1.vacancies import routes as vacancies_routes
 from src.api.v1.vacancy_files import routes as vacancy_files_routes
 from src.api.v1.metrics import routes as metrics_routes
+from src.api.v1.tasks import routes as tasks_routes

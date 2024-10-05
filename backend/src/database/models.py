@@ -1,9 +1,7 @@
 from uuid import uuid4
 
 from sqlalchemy import JSON, UUID, Boolean, Column, Date, Float, ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import relationship
-
+from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -66,6 +64,22 @@ class User(Base):
     employees = relationship("Employee", back_populates="recruiter")
 
 
+
+class RecruiterTask(Base):
+    __tablename__ = "recruiter_task"
+    id = Column(Integer, primary_key=True)
+    uuid = Column(UUID, unique=True)
+    type = Column(String())
+    recruiter_id = Column(Integer, ForeignKey("user.id"))
+    description = Column(String())
+    status = Column(String())
+    priority = Column(Integer)
+    created_at = Column(Date)
+    started_at = Column(Date)
+    closed_at = Column(Date)
+
+    recruiter = relationship("User")
+
 class Interview(Base):
     __tablename__ = "interview"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -82,19 +96,6 @@ class Interview(Base):
     date_start_at = Column(Date)
     date_end_at = Column(Date)
 
-
-class RecruiterTask(Base):
-    __tablename__ = "recruiter_task"
-    id = Column(Integer, primary_key=True)
-    uuid = Column(UUID, unique=True)
-    type = Column(String())
-    recruiter_id = Column(Integer, ForeignKey("user.id"))
-    description = Column(String())
-    status = Column(String())
-    priority = Column(Integer)
-    created_at = Column(Date)
-    started_at = Column(Date)
-    closed_at = Column(Date)
 
 
 class ScreenTimeMetrics(Base):
