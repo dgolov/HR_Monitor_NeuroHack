@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from uuid import uuid4
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -27,7 +28,7 @@ def create_candidate():
         other_info={"hobbies": fake.words(3), "experience": fake.job()},
         resume_link=fake.url(),
         status=random.choice(["applied", "interviewed", "hired"]),
-        vacancy_id=random.randint(1, 5)
+        vacancy_id=random.randint(10, 21)
     )
 
 
@@ -107,14 +108,14 @@ def create_recruiter_task(recruiter_id):
 def create_hire_quality_metrics():
     return HireQualityMetrics(
         recruiter_name=fake.name(),
-        month=random.randrange(1, 13),
+        month=fake.date_between(datetime(2024, 1, 1), datetime.now()),
         value=round(random.uniform(0,1), 3)
     )
 
 def create_screen_time_metrics():
     return ScreenTimeMetrics(
         recruiter_name=fake.name(),
-        month=random.randrange(1, 13),
+        month=fake.date_between(datetime(2024, 1, 1), datetime.now()),
         value=round(random.uniform(0,1), 3)
     )
 
