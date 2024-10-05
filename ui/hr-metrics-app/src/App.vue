@@ -2,6 +2,7 @@
   <div id="app">
     <AppNavbar />
     <BarChart />
+    <KanbanBoard />
   </div>
 </template>
 
