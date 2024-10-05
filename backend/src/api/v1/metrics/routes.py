@@ -47,13 +47,23 @@ async def average_hire_time(repository: Repository = repo_dep) -> schemas.Vacanc
 
 
 @router.get("/screen-time")
-async def screen_time(repository: Repository = repo_dep) -> list[schemas.ScreenTimeMetrics]:
-    return await repository.get_screen_time_data()
+async def screen_time(
+    recruiter_name: str | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> list[schemas.ScreenTimeMetrics]:
+    return await repository.get_screen_time_data(recruiter_name, date_start, date_end)
 
 
 @router.get("/hire-quality")
-async def hire_quality(repository: Repository = repo_dep) -> list[schemas.HireQualityMetrics]:
-    return await repository.get_hire_quality_data()
+async def hire_quality(
+    recruiter_name: str | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> list[schemas.HireQualityMetrics]:
+    return await repository.get_hire_quality_data(recruiter_name, date_start, date_end)
 
 
 @router.get("/vacancy-cost")
@@ -171,14 +181,13 @@ async def get_fired_employees_count(
 
 @router.get("/soon_fired_summary")
 async def get_fired_employees_for_last_3_years(
-        repository: Repository = repo_dep,
+    repository: Repository = repo_dep,
 ):
     current_date = datetime.now()
 
     summary = defaultdict(lambda: defaultdict(dict))
 
-
-    for year_offset in range(0, 3):
+    for year_offset in range(3):
         year = current_date.year - year_offset
         for month in range(1, 13):
             first_day_of_month = datetime(year, month, 1)
@@ -186,24 +195,24 @@ async def get_fired_employees_for_last_3_years(
             if first_day_of_month > current_date:
                 continue
 
-            if month == 12:
-                first_day_next_month = datetime(year + 1, 1, 1)
-            else:
-                first_day_next_month = datetime(year, month + 1, 1)
+            first_day_next_month = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
 
             six_months_ago = first_day_of_month - timedelta(days=6 * 30)
 
             fired_employees = await repository.get_fired_employees_by_month(
-                first_day_of_month, first_day_next_month, six_months_ago
+                first_day_of_month,
+                first_day_next_month,
+                six_months_ago,
             )
 
             count_fired_less_than_6_months = sum(
-                1 for employee in fired_employees
+                1
+                for employee in fired_employees
                 if employee.date_started and (employee.date_fired - employee.date_started).days < 6 * 30
             )
 
             summary[year][month] = {
-                "count_fired_less_than_6_months": count_fired_less_than_6_months
+                "count_fired_less_than_6_months": count_fired_less_than_6_months,
             }
 
     return summary

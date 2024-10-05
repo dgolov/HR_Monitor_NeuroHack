@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import Any, List, Optional
 
 from fastapi import HTTPException
-from sqlalchemy import Select, select, and_
+from sqlalchemy import Select, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import models
@@ -37,7 +38,7 @@ class RepositoryBase:
             await self.session.commit()
         except Exception as e:
             logger.error(f"Add {model.__tablename__} error - {e}")
-            raise HTTPException(status_code=400, detail="Bad request")
+            raise HTTPException(status_code=400, detail="Bad request") from e
 
     async def _update(self, obj, data) -> None:
         if not isinstance(data, dict):
@@ -173,7 +174,7 @@ class Repository(RepositoryBase):
         candidate_model = models.Candidate(**candidate.model_dump())
         await self._insert_one(candidate_model)
 
-    async def get_grouped_vacancies(self) -> List[Any]:
+    async def get_grouped_vacancies(self) -> List[models.Vacancy]:
         query = select(models.Vacancy).filter(
             models.Vacancy.status == "closed",
             models.Vacancy.close_at.isnot(None),
@@ -181,29 +182,62 @@ class Repository(RepositoryBase):
         )
         return await self._all(query=query)
 
-    async def get_screen_time_data(self) -> List[models.ScreenTimeMetrics]:
+    async def get_screen_time_data(
+        self,
+        recruiter_name: str | None,
+        date_start: datetime | None,
+        date_end: datetime | None,
+    ) -> List[models.ScreenTimeMetrics]:
         query = select(self.screen_time)
+        if recruiter_name:
+            query = query.where(self.screen_time.recruiter_name == recruiter_name)
+        if date_start and date_end:
+            query = query.where(
+                and_(
+                    self.screen_time.month >= date_start,
+                    self.screen_time.month <= date_end,
+                ),
+            )
         return await self._all(query=query)
 
-    async def get_hire_quality_data(self) -> List[models.HireQualityMetrics]:
+    async def get_hire_quality_data(
+        self,
+        recruiter_name: str | None,
+        date_start: datetime | None,
+        date_end: datetime | None,
+    ) -> List[models.HireQualityMetrics]:
         query = select(self.hire_quality)
+        if recruiter_name:
+            query = query.where(self.hire_quality.recruiter_name == recruiter_name)
+        if date_start and date_end:
+            query = query.where(
+                and_(
+                    self.hire_quality.month >= date_start,
+                    self.hire_quality.month <= date_end,
+                ),
+            )
         return await self._all(query=query)
 
-    async def get_fired_employees(self, reference_date, six_months_ago):
+    async def get_fired_employees(self, reference_date: datetime, six_months_ago: datetime) -> List[models.Employee]:
         query = select(models.Employee).filter(
             and_(
                 models.Employee.date_fired >= six_months_ago,
-                models.Employee.date_fired <= reference_date
-            )
+                models.Employee.date_fired <= reference_date,
+            ),
         )
         return await self._all(query=query)
 
-    async def get_fired_employees_by_month(self, first_day_of_month, first_day_next_month, six_months_ago):
+    async def get_fired_employees_by_month(
+        self,
+        first_day_of_month: datetime,
+        first_day_next_month: datetime,
+        six_months_ago: datetime,
+    ) -> List[models.Employee]:
         query = select(models.Employee).filter(
             and_(
                 models.Employee.date_fired >= first_day_of_month,
                 models.Employee.date_fired < first_day_next_month,
-                models.Employee.date_fired >= six_months_ago
-            )
+                models.Employee.date_fired >= six_months_ago,
+            ),
         )
         return await self._all(query=query)
