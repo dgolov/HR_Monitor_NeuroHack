@@ -133,7 +133,6 @@ async def vacancy_cost(
             ),
         ),
     )
-    recruiters_ids = []
     for vacancy in closed_vacancies:
         if vacancy.close_at:  # Проверяем, что дата закрытия существует
             year = vacancy.close_at.year
