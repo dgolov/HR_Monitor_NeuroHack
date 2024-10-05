@@ -234,10 +234,13 @@ class Repository(RepositoryBase):
         recruiter_name: str | None,
         date_start: datetime | None,
         date_end: datetime | None,
+        recruiter_id: int | None = None,
     ) -> List[models.ScreenTimeMetrics]:
         query = select(self.screen_time)
         if recruiter_name:
             query = query.where(self.screen_time.recruiter_name == recruiter_name)
+        elif recruiter_id:
+            query = query.join(self.user).where(self.user.id == recruiter_id)
         if date_start and date_end:
             query = query.where(
                 and_(
