@@ -7,6 +7,7 @@ from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
 from src.schema import schemas
 
+
 router = APIRouter(prefix="/metrics")
 
 
@@ -119,9 +120,9 @@ async def vacancy_cost(repository: Repository = repo_dep) -> dict:
     return dict(average_data)
 
 
-@router.get("/referal_part")
+@router.get("/referal-part")
 async def referal_count(repository: Repository = repo_dep):
-    hired_candidates = await repository.get_candidates(vacancy_id=None, status='hired')
+    hired_candidates = await repository.get_candidates(vacancy_id=None, status="hired")
     # Подсчитываем количество рефералов и нерефералов
     total_hired = len(hired_candidates)
     referral_count = sum(1 for candidate in hired_candidates if candidate.is_referral)
@@ -134,10 +135,10 @@ async def referal_count(repository: Repository = repo_dep):
     )
 
 
-@router.get("/hired_to_rejected")
+@router.get("/hired-to-rejected")
 async def hired_to_rejected(repository: Repository = repo_dep):
-    hired_candidates = await repository.get_candidates(vacancy_id=None, status='hired')
-    rejected_candidates = await repository.get_candidates(vacancy_id=None, status='rejected')
+    hired_candidates = await repository.get_candidates(vacancy_id=None, status="hired")
+    rejected_candidates = await repository.get_candidates(vacancy_id=None, status="rejected")
     total_hired = len(hired_candidates) + len(rejected_candidates)
 
     return schemas.HiredRejectedResponse(
@@ -147,10 +148,11 @@ async def hired_to_rejected(repository: Repository = repo_dep):
     )
 
 
-@router.get("/soon_fired")
-async def get_fired_employees_count(repository: Repository = repo_dep,
-                                    reference_date: datetime = Query(None),
-                                    ):
+@router.get("/soon-fired")
+async def get_fired_employees_count(
+    repository: Repository = repo_dep,
+    reference_date: datetime = Query(None),
+):
     # Вычисляем дату 6 месяцев назад от заданной даты
     six_months_ago = reference_date - timedelta(days=6 * 30)
     # Запрос для получения сотрудников, уволенных за последние 6 месяцев
@@ -159,10 +161,11 @@ async def get_fired_employees_count(repository: Repository = repo_dep,
 
     # Подсчитываем тех, кто проработал менее 6 месяцев
     count_fired_less_than_6_months = sum(
-        1 for employee in fired_employees
+        1
+        for employee in fired_employees
         if employee.date_started and (employee.date_fired - employee.date_started).days < 6 * 30
     )
 
     return schemas.EmployeeCountResponse(
-        total_fired_less_than_6_months=count_fired_less_than_6_months
+        total_fired_less_than_6_months=count_fired_less_than_6_months,
     )
