@@ -112,7 +112,7 @@ class HireQualityMetrics(Base):
 class Employee(Base):
     __tablename__ = "employee"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name= Column(String())
+    name = Column(String())
     date_started = Column(Date)
     date_fired = Column(Date)
     position = Column(String)
