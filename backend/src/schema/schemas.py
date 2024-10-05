@@ -142,3 +142,15 @@ class HireQualityMetrics(BaseModel):
     recruiter_name: str
     month: datetime
     value: float
+
+
+class ReferralCountResponse(BaseModel):
+    total_hired: int
+    referral_count: int
+    non_referral_count: int
+
+
+class HiredRejectedResponse(BaseModel):
+    total_count: int
+    hired_count: int
+    rejected_count: int

@@ -146,10 +146,13 @@ class Repository(RepositoryBase):
         interview_model = models.Interview(**interview.model_dump())
         await self._insert_one(interview_model)
 
-    async def get_candidates(self, vacancy_id: int) -> list[models.Candidate]:
+    async def get_candidates(self, vacancy_id: Optional[int] = None, status: Optional[str] = None) \
+            -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
             query = query.where(self.candidate.vacancy_id == vacancy_id)
+        if status:
+            query = query.where(self.candidate.status == status)
         return await self._all(query=query)
 
     async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:
