@@ -5,7 +5,10 @@ from sqlalchemy.orm import sessionmaker
 from faker import Faker
 import random
 from dotenv import load_dotenv
-from src.database.models import Base, Candidate, Vacancy, VacancyFile, User, Interview, RecruiterTask
+from src.database.models import (Base, Candidate, Vacancy,
+                                 VacancyFile, User,
+                                 Interview, RecruiterTask, ScreenTimeMetrics,
+                                 HireQualityMetrics)
 
 
 load_dotenv()
@@ -44,7 +47,8 @@ def create_vacancy():
         viewed_count=random.randint(0, 100),
         responded_count=random.randint(0, 100),
         vacancy_file_id=random.randint(1, 10),
-        creator_id=random.randint(1, 5)
+        creator_id=random.randint(1, 5),
+        recruiter_id=random.randint(1, 5)
     )
 
 
@@ -67,7 +71,8 @@ def create_user():
         role=random.choice(["recruiter", "admin", "developer"]),
         phone=fake.phone_number(),
         is_verified=random.choice([True, False]),
-        is_active=True
+        is_active=True,
+        salary=random.randrange(2000, 5000)
     )
 
 
@@ -102,6 +107,21 @@ def create_recruiter_task(recruiter_id):
     )
 
 
+def create_hire_quality_metrics():
+    return HireQualityMetrics(
+        recruiter_name=fake.name(),
+        month=random.randrange(1, 13),
+        value=round(random.uniform(0,1), 3)
+    )
+
+def create_screen_time_metrics():
+    return ScreenTimeMetrics(
+        recruiter_name=fake.name(),
+        month=random.randrange(1, 13),
+        value=round(random.uniform(0,1), 3)
+    )
+
+
 def populate_database():
     for _ in range(10):
         session.add(create_candidate())
@@ -122,6 +142,13 @@ def populate_database():
         candidate_id = random.randint(1, 10)
         recruiter_id = random.choice(recruiters).id
         session.add(create_interview(candidate_id, recruiter_id))
+
+    for _ in range(500):
+        session.add(create_hire_quality_metrics())
+
+    for _ in range(500):
+        session.add(create_screen_time_metrics())
+
 
     for recruiter in recruiters:
         session.add(create_recruiter_task(recruiter.id))
