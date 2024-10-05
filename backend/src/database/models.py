@@ -1,8 +1,6 @@
 from uuid import uuid4
 
-from sqlalchemy import (Boolean, Column, Date,
-                        ForeignKey, Integer, String,
-                        JSON, UUID)
+from sqlalchemy import JSON, UUID, Boolean, Column, Date, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -19,7 +17,8 @@ class Candidate(Base):
     resume_link = Column(String())
     status = Column(String())
     vacancy_id = Column(Integer)
-    
+
+
 class Vacancy(Base):
     __tablename__ = "vacancy"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -35,7 +34,8 @@ class Vacancy(Base):
     responded_count = Column(Integer, default=0)
     vacancy_file_id = Column(Integer)
     creator_id = Column(Integer)
-    
+
+
 class VacancyFile(Base):
     __tablename__ = "vacancy_file"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -44,7 +44,7 @@ class VacancyFile(Base):
     description = Column(String())
     link = Column(String())
     created_at = Column(Date)
-    
+
 
 class User(Base):
     __tablename__ = "user"
@@ -57,8 +57,8 @@ class User(Base):
     phone = Column(String())
     is_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
-    
-    
+
+
 class Interview(Base):
     __tablename__ = "interview"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -74,8 +74,8 @@ class Interview(Base):
     created_at = Column(Date)
     date_start_at = Column(Date)
     date_end_at = Column(Date)
-    
-    
+
+
 class RecruiterTask(Base):
     __tablename__ = "recruiter_task"
     id = Column(Integer, primary_key=True)
