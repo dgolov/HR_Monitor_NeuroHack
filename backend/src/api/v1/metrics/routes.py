@@ -339,7 +339,7 @@ async def get_average_manager_rating(
 async def get_average_candidate_to_vacancy(
     reference_date: datetime,
     repository: Repository = repo_dep,
-) -> dict[str, int]:
+) -> dict[str, float]:
     """Среднне кол-во откликов на закрытую вокансии за 6 месяцев от референс_дэйт."""
     six_months_ago = reference_date - timedelta(days=6 * 30)
     all_recruiters = await repository.get_all_recruiters()
@@ -366,11 +366,11 @@ async def get_average_candidate_to_vacancy(
 
 @router.get("/average-candidate-to-vacancy-history")
 async def get_average_candidate_to_vacancy_history(
-        recruiter_name: str | None = None,
-        recruiter_id: int | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> list[schemas.HireTimeMetrics]:
     """Время закрытия вакансии по рекрутеру за период."""
     return await repository.get_average_candidate_to_vacancy(recruiter_name, date_start, date_end, recruiter_id)
