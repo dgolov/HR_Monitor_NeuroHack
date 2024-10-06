@@ -49,7 +49,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <button class="btn btn-secondary mt-4" style="height: 30px;">Применить</button>
+            <button class="btn btn-secondary mt-4 w-100">Применить</button>
           </div>
         </div>
 
@@ -142,7 +142,7 @@ export default {
             type: 'time',
             time: {
               unit: 'month',
-              tooltipFormat: 'MMM yyyy',
+              tooltipFormat: 'MMM',
               displayFormats: { month: 'MMM' },
             },
             title: { display: true, text: '' },
@@ -158,7 +158,7 @@ export default {
                 const date = new Date(context.parsed.x);
                 const month = this.monthNames[date.getMonth()];
                 const value = context.parsed.y;
-                return `${month}: ${value} вакансий`;
+                return `${month}: ${value} дней`;
               },
             },
           },

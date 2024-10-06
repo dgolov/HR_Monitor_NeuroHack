@@ -25,6 +25,16 @@ const routes = [
     name: "cabinet",
     component: () => import("@/views/CabinetPage.vue"),
   },
+  {
+    path: "/metrics/screen-time",
+    name: "screen-time",
+    component: () => import("@/views/metrics/screenTime.vue"),
+  },
+  {
+    path: "/metrics/hire-quality",
+    name: "hire-quality",
+    component: () => import("@/views/metrics/hireQuality.vue"),
+  },
 ];
 
 const router = createRouter({
