@@ -18,8 +18,8 @@ class User(Base):
     phone: str
     is_verified: bool
     is_active: bool
-    grade: int
-    efficiently: int
+    grade: int | None = None
+    efficiently: int | None = None
 
     class Config:
         from_attributes = True
