@@ -49,7 +49,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <button class="btn btn-secondary mt-4" style="height: 30px;">Применить</button>
+            <button class="btn btn-secondary mt-4 w-100">Применить</button>
           </div>
         </div>
 
@@ -108,6 +108,7 @@ import {
 import Datepicker from 'vue3-datepicker';
 import 'chartjs-adapter-date-fns';
 import { apiUrl } from '@/api';
+import {recrutersMixin} from "@/mixins/recrutersMixin";
 
 ChartJS.register(
   BarController,
@@ -127,10 +128,9 @@ export default {
   components: {
     LineChart: Line, Datepicker
   },
+  mixins: [recrutersMixin],
   data() {
     return {
-      recruters: [],
-      itemRecruter: null,
       availableYears: [],
       selectedYear: null,
       chartData: { datasets: [] },
@@ -142,7 +142,7 @@ export default {
             type: 'time',
             time: {
               unit: 'month',
-              tooltipFormat: 'MMM yyyy',
+              tooltipFormat: 'MMM',
               displayFormats: { month: 'MMM' },
             },
             title: { display: true, text: '' },
@@ -158,7 +158,7 @@ export default {
                 const date = new Date(context.parsed.x);
                 const month = this.monthNames[date.getMonth()];
                 const value = context.parsed.y;
-                return `${month}: ${value} вакансий`;
+                return `${month}: ${value} дней`;
               },
             },
           },
@@ -201,18 +201,6 @@ export default {
       this.fetchVacancyData();
       this.updateHireQualityChart();
       this.updatePerformanceChart();
-    },
-    async fetchRecruterst() { 
-      try {
-        const response = await fetch(`${apiUrl}/users/?role=recruiter`);
-        if (!response.ok) {
-          throw new Error(`Ошибка сети: ${response.statusText}`);
-        }
-        this.recruters = await response.json();
-        this.itemRecruter = this.recruters[0]
-      } catch (error) {
-        console.error('Ошибка при загрузке рекрутеров:', error);
-      }
     },
     async fetchVacancyData() {
       try {
