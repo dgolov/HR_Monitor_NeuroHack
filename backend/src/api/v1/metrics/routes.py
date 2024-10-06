@@ -222,7 +222,7 @@ async def avarage_vacancy_cost(
         ),
     )
     for vacancy in closed_vacancies:
-        if vacancy.close_at:  # Проверяем, что дата закрытия существует
+        if vacancy.close_at:
             year = vacancy.close_at.year
             month = vacancy.close_at.month
             recruiter_id = int(vacancy.recruiter_id)
@@ -231,7 +231,6 @@ async def avarage_vacancy_cost(
             recruiter_salary = recruiter.salary
             recruiter_name = recruiter.name
 
-            # Обновляем сумму зарплат и количество вакансий
             grouped_data[recruiter_name][year][month]["total_salary"] = recruiter_salary
             grouped_data[recruiter_name][year][month]["vacancies_count"] += 1
 
@@ -350,6 +349,7 @@ async def get_fired_employees_count(
 @router.get("/3year-fired")
 async def get_fired_employees_for_last_3_years(
     repository: Repository = repo_dep,
+    recruiter_id: int | None = None,
 ):
     current_date = datetime.now()
 
@@ -371,6 +371,7 @@ async def get_fired_employees_for_last_3_years(
                 first_day_of_month,
                 first_day_next_month,
                 six_months_ago,
+                recruiter_id,
             )
 
             count_fired_less_than_6_months = sum(
