@@ -242,7 +242,6 @@ export default {
       if (this.currentColorIndex >= this.colorPalette.length) {
         this.currentColorIndex = this.colorPalette.length - 1;
       }
-      console.log(color)
       return color;
     },
     updateChartVacancyData() {
@@ -276,7 +275,7 @@ export default {
         }
         if (!this.formattedPerformanceData[item.recruiter_name]) {
           this.formattedPerformanceData[item.recruiter_name] = [
-            {month: item.month, value: item.value}
+            {month: item.month.split("-")[1], value: item.value}
           ];
         } else {
           this.formattedPerformanceData[item.recruiter_name].push({month: item.month, value: item.value});
