@@ -3,27 +3,22 @@
   <hr/>
   <div class="container mt-4">
     <div class="row mt-4">
+      <div class="form-group">
+        <label for="yearSelector">Выберите рекуртера:</label>
+        <select id="yearSelector" class="form-control mt-1" v-model="itemRecruter" @change="updateData">
+          <option v-for="recruter in recruters" :key="recruter" :value="recruter">{{ recruter.name }}</option>
+        </select>
+      </div>
+      <div class="form-group mt-3">
+        <label for="yearSelector">Выберите год:</label>
+        <select id="yearSelector" class="form-control mt-1" v-model="selectedYear" @change="updateChartData">
+          <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+        </select>
+      </div>
       <div class="col-md-6 mb-4">
-        <div class="form-group">
-          <label for="yearSelector">Выберите год:</label>
-          <select id="yearSelector" class="form-control" v-model="selectedYear" @change="updateChartData">
-            <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <div class="row">
-            <label>Укажите id рекрутера:</label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" v-model="recruterID" v-on:keyup.enter="fetchVacancyData">
-            </div>
-            <div class="col-md-3">
-              <button type="button" class="btn btn-secondary w-100" @click="fetchVacancyData">Сформировать</button>
-            </div>
-          </div>
-        </div>
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Среднее количество дней закрытия вакансии</h5>
+            <h5 class="card-title">Среднее количество закрытых вакансий</h5>
             <line-chart
               v-if="chartData.datasets.length > 0"
               :data="chartData"
@@ -35,12 +30,6 @@
         </div>
       </div>
       <div class="col-md-6 mb-4">
-        <div class="form-group">
-          <label for="yearSelector">Выберите рекуртера:</label>
-          <select id="yearSelector" class="form-control" v-model="itemChertRecruter" @change="updatePerformanceChart">
-            <option v-for="recruter in chartRecruters" :key="recruter">{{ recruter }}</option>
-          </select>
-        </div>
         <div class="card">
           <div class="card-body">
             <h5>Время скрининга</h5>
@@ -106,6 +95,8 @@ export default {
   },
   data() {
     return {
+      recruters: [],
+      itemRecruter: null,
       availableYears: [],
       selectedYear: null,
       chartData: { datasets: [] },
@@ -157,17 +148,35 @@ export default {
       hireQualityData: []
     };
   },
-  mounted() {
+  created() {
+    this.fetchRecruterst();
     this.fetchVacancyData();
     this.fetchPerformanceChart();
     this.fetchHireQualityChart();
   },
   methods: {
+    updateData() {
+      this.fetchVacancyData();
+      this.updateHireQualityChart();
+      this.updatePerformanceChart();
+    },
+    async fetchRecruterst() { 
+      try {
+        const response = await fetch(`${apiUrl}/users/?role=recruiter`);
+        if (!response.ok) {
+          throw new Error(`Ошибка сети: ${response.statusText}`);
+        }
+        this.recruters = await response.json();
+        this.itemRecruter = this.recruters[0]
+      } catch (error) {
+        console.error('Ошибка при загрузке рекрутеров:', error);
+      }
+    },
     async fetchVacancyData() {
       try {
         let url = `${apiUrl}/metrics/average-hire-time`;
-        if (this.recruterID) {
-          url += `?recruiter_id=${this.recruterID}`;
+        if (this.itemRecruter) {
+          url += `?recruiter_id=${this.itemRecruter.id}`;
         }
         const response = await fetch(url);
         const data = await response.json();
@@ -186,6 +195,9 @@ export default {
       }));
     },
     updateChartVacancyData() {
+      this.chartData = {
+        datasets: [],
+      };
       const yearData = this.jsonData[this.selectedYear];
       if (!yearData) {
         console.log(`Нет данных для года ${this.selectedYear}`);
@@ -208,9 +220,6 @@ export default {
     async transformRecruterData() {
       this.formattedPerformanceData = {};
       for (let item of this.recruitersData) {
-        if (!this.itemChertRecruter) {
-          this.itemChertRecruter = item.recruiter_name;
-        }
         if (this.chartRecruters.indexOf(item.recruiter_name) == -1) {
           this.chartRecruters.push(item.recruiter_name);
         }
@@ -237,12 +246,11 @@ export default {
       }
     },
     updatePerformanceChart() { 
-
-      if (!Object.keys(this.formattedPerformanceData).length) {
+      if (!Object.keys(this.formattedPerformanceData).length || this.formattedPerformanceData[this.itemRecruter.name] == undefined) {
         return;
       }
-      const labels = this.formattedPerformanceData[this.itemChertRecruter].map(item => item.month);
-      const values = this.formattedPerformanceData[this.itemChertRecruter].map(item => item.value);
+      const labels = this.formattedPerformanceData[this.itemRecruter.name].map(item => item.month);
+      const values = this.formattedPerformanceData[this.itemRecruter.name].map(item => item.value);
       const ctx = this.$refs.recruiterChart.getContext('2d');
 
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -256,7 +264,7 @@ export default {
         data: {
           labels: labels,
           datasets: [{
-            label: 'Производительность ' + this.itemChertRecruter,
+            label: 'Производительность ' + this.itemRecruter.name,
             data: values,
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
@@ -299,9 +307,6 @@ export default {
     async transformHireQualityData() {
       this.formattedHireQualityData = {};
       for (let item of this.hireQualityData) {
-        if (!this.itemQualityRecruter) {
-          this.itemQualityRecruter = item.recruiter_name;
-        }
         if (this.qualitiesRecruters.indexOf(item.recruiter_name) == -1) {
           this.qualitiesRecruters.push(item.recruiter_name);
         }
@@ -315,12 +320,11 @@ export default {
       }
     },
     updateHireQualityChart() { 
-
-      if (!Object.keys(this.formattedHireQualityData).length) {
+      if (!Object.keys(this.formattedHireQualityData).length || this.formattedHireQualityData[this.itemRecruter.name] == undefined) {
         return;
       }
-      const labels = this.formattedHireQualityData[this.itemQualityRecruter].map(item => item.month);
-      const values = this.formattedHireQualityData[this.itemQualityRecruter].map(item => item.value);
+      const labels = this.formattedHireQualityData[this.itemRecruter.name].map(item => item.month);
+      const values = this.formattedHireQualityData[this.itemRecruter.name].map(item => item.value);
       const ctx = this.$refs.qualityChart.getContext('2d');
 
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -334,7 +338,7 @@ export default {
         data: {
           labels: labels,
           datasets: [{
-            label: 'Качество найма ' + this.itemQualityRecruter,
+            label: 'Качество найма ' + this.itemRecruter.name,
             data: values,
             backgroundColor: 'rgba(255, 159, 64, 0.2)', 
             borderColor: 'rgba(255, 159, 64, 1)',  
