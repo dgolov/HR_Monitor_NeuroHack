@@ -26,7 +26,7 @@ async def get_task(
         repository: Repository = repo_dep,
 ):
     report_directory = "./reports"
-    filename = f'./{metric_by_hr}_{start}_{end}.xlsx'
+    filename = f'report.xlsx'
     full_filepath = os.path.join(report_directory, filename)
 
     all_metrics = {
