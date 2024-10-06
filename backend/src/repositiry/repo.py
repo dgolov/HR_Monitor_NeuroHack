@@ -248,20 +248,8 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
     ) -> list[models.HireTimeMetrics]:
-        query = select(self.hire_time)
-        if recruiter_name:
-            query = query.where(self.hire_time.recruiter_name == recruiter_name)
-        elif recruiter_id:
-            query = self.join_user_model(recruiter_id, query, self.hire_time)
-        if date_start and date_end:
-            query = query.where(
-                and_(
-                    self.hire_time.month >= date_start,
-                    self.hire_time.month <= date_end,
-                ),
-            )
-        query = query.order_by(self.hire_time.month)
-        return await self._all(query=query)
+        model = self.hire_time
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
 
     async def get_screen_time_data(
         self,
@@ -270,25 +258,8 @@ class Repository(RepositoryBase):
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
     ) -> List[models.ScreenTimeMetrics]:
-        query = select(self.screen_time)
-        if recruiter_name:
-            query = query.where(self.screen_time.recruiter_name == recruiter_name)
-        elif recruiter_id:
-            query = self.join_user_model(recruiter_id, query, self.screen_time)
-        if date_start and date_end:
-            query = query.where(
-                and_(
-                    self.screen_time.month >= date_start,
-                    self.screen_time.month <= date_end,
-                ),
-            )
-        query = query.order_by(self.screen_time.month)
-        return await self._all(query=query)
-
-    def join_user_model(self, recruiter_id: int, query: Select, model: models.Metrics) -> Select:
-        return query.join(self.user, self.user.name == model.recruiter_name).where(
-            self.user.id == recruiter_id,
-        )
+        model = self.screen_time
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
 
     async def get_hire_quality_data(
         self,
@@ -297,20 +268,8 @@ class Repository(RepositoryBase):
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
     ) -> List[models.HireQualityMetrics]:
-        query = select(self.hire_quality)
-        if recruiter_name:
-            query = query.where(self.hire_quality.recruiter_name == recruiter_name)
-        elif recruiter_id:
-            query = self.join_user_model(recruiter_id, query, self.hire_quality)
-        if date_start and date_end:
-            query = query.where(
-                and_(
-                    self.hire_quality.month >= date_start,
-                    self.hire_quality.month <= date_end,
-                ),
-            )
-        query = query.order_by(self.hire_quality.month)
-        return await self._all(query=query)
+        model = self.hire_quality
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
 
     async def get_vacancy_cost_data(
         self,
@@ -319,20 +278,8 @@ class Repository(RepositoryBase):
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
     ) -> list[models.VacancyCostMetrics]:
-        query = select(self.vacancy_cost)
-        if recruiter_name:
-            query = query.where(self.vacancy_cost.recruiter_name == recruiter_name)
-        elif recruiter_id:
-            query = self.join_user_model(recruiter_id, query, self.vacancy_cost)
-        if date_start and date_end:
-            query = query.where(
-                and_(
-                    self.vacancy_cost.month >= date_start,
-                    self.vacancy_cost.month <= date_end,
-                ),
-            )
-        query = query.order_by(self.vacancy_cost.month)
-        return await self._all(query=query)
+        model = self.vacancy_cost
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
 
     async def get_vacancy_cost_comparison_data(
         self,
@@ -344,6 +291,11 @@ class Repository(RepositoryBase):
         model = self.vacancy_cost_comparison
         return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
 
+    def join_user_model(self, recruiter_id: int, query: Select, model: models.Metrics) -> Select:
+        return query.join(self.user, self.user.name == model.recruiter_name).where(
+            self.user.id == recruiter_id,
+        )
+
     async def get_metrics_data(
         self,
         model: models.Metrics,
@@ -351,7 +303,7 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
-    ) -> list[models.VacancyCostComparisonMetrics]:
+    ) -> list[models.Metrics]:
         query = select(model)
         if recruiter_name:
             query = query.where(model.recruiter_name == recruiter_name)
