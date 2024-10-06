@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import Optional
 
 from fastapi import APIRouter
 
@@ -187,7 +188,7 @@ async def avarage_vacancy_cost(
         ),
     )
     for vacancy in closed_vacancies:
-        if vacancy.close_at:  # Проверяем, что дата закрытия существует
+        if vacancy.close_at:
             year = vacancy.close_at.year
             month = vacancy.close_at.month
             recruiter_id = int(vacancy.recruiter_id)
@@ -196,7 +197,6 @@ async def avarage_vacancy_cost(
             recruiter_salary = recruiter.salary
             recruiter_name = recruiter.name
 
-            # Обновляем сумму зарплат и количество вакансий
             grouped_data[recruiter_name][year][month]["total_salary"] = recruiter_salary
             grouped_data[recruiter_name][year][month]["vacancies_count"] += 1
 
@@ -272,13 +272,10 @@ async def get_fired_employees_count(
     reference_date: datetime,
     repository: Repository = repo_dep,
 ):
-    # Вычисляем дату 6 месяцев назад от заданной даты
     six_months_ago = reference_date - timedelta(days=6 * 30)
-    # Запрос для получения сотрудников, уволенных за последние 6 месяцев
 
     fired_employees = await repository.get_fired_employees(reference_date, six_months_ago)
 
-    # Подсчитываем тех, кто проработал менее 6 месяцев
     count_fired_less_than_6_months = sum(
         (employee.date_fired - employee.date_started).days < 6 * 30 for employee in fired_employees
     )
@@ -291,6 +288,7 @@ async def get_fired_employees_count(
 @router.get("/soon-fired-summary")
 async def get_fired_employees_for_last_3_years(
     repository: Repository = repo_dep,
+    recruiter_id: int | None = None,
 ):
     current_date = datetime.now()
 
@@ -312,6 +310,7 @@ async def get_fired_employees_for_last_3_years(
                 first_day_of_month,
                 first_day_next_month,
                 six_months_ago,
+                recruiter_id,
             )
 
             count_fired_less_than_6_months = sum(

@@ -388,18 +388,23 @@ class Repository(RepositoryBase):
         return await self._all(query=query)
 
     async def get_fired_employees_by_month(
-        self,
-        first_day_of_month: datetime,
-        first_day_next_month: datetime,
-        six_months_ago: datetime,
+            self,
+            first_day_of_month: datetime,
+            first_day_next_month: datetime,
+            six_months_ago: datetime,
+            recruiter_id: Optional[int] = None,
     ) -> List[models.Employee]:
         query = select(models.Employee).filter(
             and_(
                 models.Employee.date_fired >= first_day_of_month,
                 models.Employee.date_fired < first_day_next_month,
                 models.Employee.date_fired >= six_months_ago,
-            ),
+            )
         )
+
+        if recruiter_id is not None:
+            query = query.filter(models.Employee.recruiter_id == recruiter_id)
+
         return await self._all(query=query)
 
     async def get_employees_by_started_date(self, start_date, end_date):
