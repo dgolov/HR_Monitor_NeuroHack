@@ -28,9 +28,8 @@
           </select>
         </div>
 
-        <!-- Форма для выбора года -->
         <div class="form-group">
-          <label for="yearSelector">Выберите год:</label>
+          <label for="yearSelector">Фильтр по датам:</label>
           <select id="yearSelector" class="form-control mt-1" v-model="selectedYear" @change="updateChartData">
             <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
           </select>
@@ -39,7 +38,7 @@
       <div class="col-md-6 mb-4">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Среднее количество закрытых вакансий</h5>
+            <h5 class="card-title">Среднее количство дней на закрытие вакансий</h5>
             <line-chart
               v-if="chartData.datasets.length > 0"
               :data="chartData"
@@ -60,12 +59,6 @@
         </div>
       </div>
       <div class="col-md-6 mb-4">
-        <div class="form-group">
-          <label for="yearSelector">Выберите рекуртера:</label>
-          <select id="yearSelector" class="form-control" v-model="itemQualityRecruter" @change="updateHireQualityChart">
-            <option v-for="recruter in qualitiesRecruters" :key="recruter">{{ recruter }}</option>
-          </select>
-        </div>
         <div class="card">
           <div class="card-body">
             <h5>Качество найма по рекрутеру за период</h5>
@@ -132,10 +125,10 @@ export default {
               tooltipFormat: 'MMM yyyy',
               displayFormats: { month: 'MMM' },
             },
-            title: { display: true, text: 'Месяц' },
+            title: { display: true, text: '' },
           },
           y: {
-            title: { display: true, text: 'Количество вакансий' },
+            title: { display: true, text: 'Количество' },
           },
         },
         plugins: {
@@ -157,6 +150,10 @@ export default {
         'Май', 'Июнь', 'Июль', 'Август',
         'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
       ],
+      colorPalette: [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#4B77BE','#F5D76E', '#AAB7B8', '#F1948A' 
+      ],
+      currentColorIndex: 0,
       chartInstance: null,
       chartQualityInstance: null,
       itemChertRecruter: null,
@@ -177,6 +174,7 @@ export default {
   },
   methods: {
     updateData() {
+      this.currentColorIndex = 0;
       this.fetchVacancyData();
       this.updateHireQualityChart();
       this.updatePerformanceChart();
@@ -215,28 +213,37 @@ export default {
         y: vacancies_count,
       }));
     },
+    getNextColor() {
+      const color = this.colorPalette[this.currentColorIndex];
+      this.currentColorIndex++;
+      if (this.currentColorIndex >= this.colorPalette.length) {
+        this.currentColorIndex = this.colorPalette.length - 1;
+      }
+      console.log(color)
+      return color;
+    },
     updateChartVacancyData() {
       this.chartData = {
         datasets: [],
       };
-      const yearData = this.jsonData[this.selectedYear];
-      if (!yearData) {
-        console.log(`Нет данных для года ${this.selectedYear}`);
-        return;
-      }
 
-      const transformedData = this.transformVacancyData(yearData);
-      this.chartData = {
-        datasets: [{
-          label: `Количество вакансий за ${this.selectedYear} год`,
+      for (let year of this.availableYears) {
+        const yearData = this.jsonData[year];
+        if (!yearData) {
+          console.log(`Нет данных для года ${this.selectedYear}`);
+          continue;
+        }
+        const transformedData = this.transformVacancyData(yearData);
+        this.chartData.datasets.push({
+          label: `${year} год`,
           data: transformedData,
           fill: false,
-          borderColor: '#FF6384',
+          borderColor: this.getNextColor(),
           tension: 0.1,
-        }],
-      };
+        })
+      }
 
-      this.chartTitle = `Количество вакансий за ${this.selectedYear} год`;
+      this.chartTitle = `Среднее количство за ${this.selectedYear} год`;
     },
     async transformRecruterData() {
       this.formattedPerformanceData = {};
