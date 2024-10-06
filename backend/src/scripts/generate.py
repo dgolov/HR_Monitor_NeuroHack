@@ -172,7 +172,7 @@ def create_screen_time_metrics(recruiter_name):
             data.append(ScreenTimeMetrics(
                 recruiter_name=recruiter_name,
                 month=_date,
-                value=round(random.uniform(0, 1), 3),
+                value=round(random.uniform(5.0, 10.0), 3)
             ))
     return data
 
