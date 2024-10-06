@@ -374,4 +374,3 @@ async def get_average_candidate_to_vacancy_history(
 ) -> list[schemas.HireTimeMetrics]:
     """Время закрытия вакансии по рекрутеру за период."""
     return await repository.get_average_candidate_to_vacancy(recruiter_name, date_start, date_end, recruiter_id)
-
