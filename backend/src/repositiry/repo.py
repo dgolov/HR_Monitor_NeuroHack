@@ -322,7 +322,7 @@ class Repository(RepositoryBase):
     async def get_metrics_data(
         self,
         model: models.Metrics,
-        recruiter_name: str | None = None,
+        recruiter_name: str | None | list = None,
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
@@ -331,7 +331,10 @@ class Repository(RepositoryBase):
     ) -> list[models.Metrics]:
         query = select(model)
         if recruiter_name:
-            query = query.where(model.recruiter_name == recruiter_name)
+            if isinstance(recruiter_name, list):
+                query = query.where(model.recruiter_name.in_(recruiter_name))
+            else:
+                query = query.where(model.recruiter_name == recruiter_name)
         elif recruiter_id:
             query = self.join_user_model(recruiter_id, query, model)
         if date_start and date_end:
