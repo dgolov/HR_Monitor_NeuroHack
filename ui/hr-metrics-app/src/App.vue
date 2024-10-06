@@ -1,26 +1,24 @@
 <template>
   <div id="app">
-    <AppNavbar />
-    <BarChart />
-    <KanbanBoard />
+    <component :is="layout"></component>
   </div>
 </template>
 
 <script>
-import AppNavbar from './components/AppNavbar.vue';
-import BarChart from './components/BarChart.vue';
 
 export default {
   name: 'App',
-  components: {
-    BarChart,
-    AppNavbar
+
+  computed: {
+    layout(){
+      return this.$route.meta.layout || "default-layout"
+    }
   }
+
 };
 </script>
 
 <style>
-/* Основные стили */
 #app {
   text-align: center;
 }
