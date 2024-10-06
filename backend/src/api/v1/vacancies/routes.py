@@ -28,6 +28,8 @@ async def get_vacancies(
     vtype: str | None = Query(None),
     recruiter_id: int | None = Query(None),
     status: str | None = Query(None),
+    page: str | None = 1,
+    offset: int | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.Vacancy]:
     logger.debug(
@@ -39,4 +41,6 @@ async def get_vacancies(
             "recruiter_id": recruiter_id,
             "status": status,
         },
+        page=page,
+        offset=offset
     )
