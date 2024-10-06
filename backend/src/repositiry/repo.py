@@ -107,6 +107,8 @@ class Repository(RepositoryBase):
         recruiter_id: Optional[int] = None,
         date_start: Optional[datetime] = None,
         date_end: Optional[datetime] = None,
+        page: int | None = 1,
+        offset: int | None = None,
     ) -> List[models.Vacancy]:
         query = select(self.vacancy).options(joinedload(models.Vacancy.recruiter))
         if creator_id:
@@ -122,6 +124,8 @@ class Repository(RepositoryBase):
             query = query.where(
                 and_(self.vacancy.close_at >= date_start, self.vacancy.close_at <= date_end),
             )
+        if offset:
+            query = query.limit(offset).offset(offset * (page - 1))
         return await self._all(query=query)
 
     async def get_vacancy_by_id(self, vacancy_id: int) -> models.Vacancy:
@@ -172,7 +176,7 @@ class Repository(RepositoryBase):
 
     async def get_candidates(
         self,
-        vacancy_id: Optional[int] = None,
+        vacancy_id: Optional[str] = None,
         status: Optional[str] = None,
         recruiter_id: str | None = None,
         date_start: datetime | None = None,
@@ -182,7 +186,7 @@ class Repository(RepositoryBase):
     ) -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
-            query = query.where(self.candidate.vacancy_id == vacancy_id)
+            query = query.where(self.candidate.vacancy_id == int(vacancy_id))
         if status:
             query = query.where(self.candidate.status == status)
         if recruiter_id:
@@ -203,7 +207,7 @@ class Repository(RepositoryBase):
                 ),
             )
         if offset:
-            query = await self._query_offset(query, offset, page)
+            query = query.limit(offset).offset(offset * (page - 1))
         return await self._all(query=query)
 
     async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:
