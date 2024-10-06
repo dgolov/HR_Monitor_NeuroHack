@@ -29,7 +29,8 @@ async def get_task(
         start: datetime | None = None,
         end: datetime | None = None,
         status: str | None = None,
+        order_by: str | None = None,
         repository: Repository = repo_dep,
 ) -> list[schemas.RecruiterTask]:
-    tasks_list = await repository.get_tasks_by_hr_id(start, end, status, recruiter_id)
+    tasks_list = await repository.get_tasks_by_hr_id(start, end, status, recruiter_id, order_by)
     return [schemas.RecruiterTask.model_validate(task) for task in tasks_list]
