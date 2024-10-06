@@ -1,5 +1,6 @@
 import random
-from datetime import datetime, timedelta
+from datetime import timedelta
+from sqlalchemy import select
 from uuid import uuid4
 
 from faker import Faker
@@ -24,22 +25,27 @@ fake = Faker()
 session = async_session_maker()
 
 
-def create_candidate():
+def create_candidate(vacancy_id):
     return Candidate(
         uuid=uuid4(),
         name=fake.name(),
         is_referral=random.choice([True, False]),
         other_info={"hobbies": fake.words(3), "experience": fake.job()},
         resume_link=fake.url(),
-        status=random.choice(["applied", "interviewed", "hired","hired","hired", "decline_offer"]),
-        vacancy_id=random.randint(1, 10),
+        status=random.choice(["applied", "interviewed", "hired", "rejected", "rejected", "rejected"]),
+        vacancy_id=vacancy_id,
     )
 
 
-def create_vacancy(recruiter_id: int) -> Vacancy:
-    created_at = fake.date_this_year(before_today=True)
-    today = datetime.now()
-    year_end = datetime(today.year, 12, 31)
+def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
+    created_at = fake.date_between(start_date='-3y', end_date='-1y')
+    updated_at = created_at + timedelta(days=random.choice(list(range(30, 50))))
+    closed_at = updated_at + timedelta(days=random.choice(list(range(10, 20))))
+    status = random.choice(["open", "closed", "in progress"])
+    viewed_count = random.randint(0, 1000)
+    responded_count = viewed_count - random.randint(0, 300) or 0
+    if status != 'closed':
+        closed_at = None
     return Vacancy(
         uuid=uuid4(),
         title=fake.job(),
@@ -47,11 +53,11 @@ def create_vacancy(recruiter_id: int) -> Vacancy:
         status=random.choice(["open", "closed", "in progress"]),
         created_at=created_at,
         open_at=created_at,
-        updated_at=fake.date_between(start_date=created_at, end_date=today),
-        close_at=fake.date_between(start_date=today, end_date=year_end),
-        viewed_count=random.randint(0, 100),
-        responded_count=random.randint(0, 100),
-        vacancy_file_id=random.randint(1, 10),
+        updated_at=updated_at,
+        close_at=closed_at,
+        viewed_count=viewed_count,
+        responded_count=responded_count,
+        vacancy_file_id=vacancy_file_id,
         creator_id=recruiter_id,
         recruiter_id=recruiter_id,
     )
@@ -67,23 +73,29 @@ def create_vacancy_file():
     )
 
 
-def create_user():
+def create_user(role: str):
     return User(
         uuid=uuid4(),
         password_hash=fake.sha256(),
         name=fake.name(),
         email=fake.email(),
-        role=random.choice(["recruiter", "admin", "developer"]),
+        role=role,
         phone=fake.phone_number(),
         is_verified=random.choice([True, False]),
         is_active=True,
-        salary=random.randrange(2000, 5000),
+        salary=random.randrange(70000, 100000),
         grade=random.randrange(1, 5),
         efficiently=random.randrange(1, 5),
     )
 
 
-def create_interview(candidate_id: int, recruiter_id: int, tech_id: int) -> Interview:
+def create_interview(candidate_id: int, recruiter_id: int, tech_id: int, status: str) -> Interview:
+    created_at = fake.date_time_between(start_date='-3y', end_date='-1y')
+    date_start_at = created_at + timedelta(days=random.randint(1, 7))
+    date_end_at = date_start_at + timedelta(hours=random.randint(1, 3))
+    if status in ['scheduled', 'canceled']:
+        date_start_at = None
+        date_end_at = None
     return Interview(
         uuid=uuid4(),
         title=fake.catch_phrase(),
@@ -92,15 +104,21 @@ def create_interview(candidate_id: int, recruiter_id: int, tech_id: int) -> Inte
         type=random.choice(["tech", "HR"]),
         recruiter_id=recruiter_id,
         tech_id=tech_id,
-        status=random.choice(["scheduled", "completed", "canceled"]),
+        status=status,  # scheduled, completed, canceled
         other_info={"notes": fake.paragraph()},
-        created_at=fake.date_this_year(),
-        date_start_at=fake.date_this_year(),
-        date_end_at=fake.date_this_year(),
+        created_at=created_at,
+        date_start_at=date_start_at,
+        date_end_at=date_end_at,
     )
 
 
 def create_recruiter_task(recruiter_id: int) -> RecruiterTask:
+    created_at = fake.date_between(start_date='-3y', end_date='-1y')
+    started_at = created_at + timedelta(days=random.choice(list(range(1, 4))))
+    closed_at = started_at + timedelta(days=random.choice(list(range(30, 80))))
+    status = random.choice(["open", "pending", "completed"])
+    if status != 'completed':
+        closed_at = None
     return RecruiterTask(
         uuid=uuid4(),
         type=random.choice(["interview", "screening", "follow-up"]),
@@ -108,80 +126,106 @@ def create_recruiter_task(recruiter_id: int) -> RecruiterTask:
         description=fake.text(),
         status=random.choice(["open", "pending", "completed"]),
         priority=random.randint(1, 5),
-        created_at=fake.date_this_year(),
-        started_at=fake.date_this_year(),
-        closed_at=fake.date_this_year(),
+        created_at=created_at,
+        started_at=started_at,
+        closed_at=closed_at,
     )
 
 
 def create_hire_quality_metrics(recruiter_name):
+    _date = fake.date_between(start_date='-3y', end_date='today')
+
     return HireQualityMetrics(
         recruiter_name=recruiter_name,
-        month=fake.date_between(datetime(2024, 1, 1), datetime.now()),
+        month=_date,
         value=round(random.uniform(0, 1), 3),
     )
 
 
 def create_screen_time_metrics(recruiter_name):
+    _date = fake.date_between(start_date='-3y', end_date='today')
+
     return ScreenTimeMetrics(
         recruiter_name=recruiter_name,
-        month=fake.date_between(datetime(2024, 1, 1), datetime.now()),
+        month=_date,
         value=round(random.uniform(0, 1), 3),
     )
 
 
-def create_employee():
+def create_employee(recruiter_id):
+    date_started = fake.date_between(start_date='-3y', end_date='-1y')
+    date_fired = random.choice([date_started + timedelta(days=random.randint(1, 365)), None])
+
     return Employee(
         name=fake.name(),
-        date_started=fake.date_between(datetime(2023, 1, 1), datetime.now() - timedelta(days=365)),
-        date_fired=fake.date_between(datetime(2024, 1, 1), datetime.now()),
-        position=fake.catch_phrase(),
-        cost_of_hiring=random.randrange(100, 400),
+        date_started=date_started,
+        date_fired=date_fired,
+        position=fake.job(),
+        cost_of_hiring=random.randrange(15000, 80000),
         manager_rating=random.randint(1, 10),
-        recruiter_id=random.randint(1, 5),
+        recruiter_id=recruiter_id,
     )
 
 
 async def populate_database() -> None:
-    recruiters = [create_user() for _ in range(10)]
+    recruiters = [create_user('recruiter') for _ in range(10)]
     session.add_all(recruiters)
     await session.commit()
-
-    for _ in range(1000):
-        recruiter = random.choice(recruiters)
-        session.add(create_vacancy(recruiter.id))
+    tech_specialists = [create_user('tech') for _ in range(10)]
+    session.add_all(tech_specialists)
     await session.commit()
 
-    for _ in range(1000):
-        session.add(create_candidate())
+    vacancies = [create_vacancy(random.choice(recruiters).id, _) for _ in range(5000)]
+    session.add_all(vacancies)
     await session.commit()
 
-    for _ in range(5):
-        session.add(create_vacancy_file())
+
+    query = await session.execute(select(Vacancy))
+    vacancies = query.scalars().all()
+    vacancy_ids = iter([vacancy.id for vacancy in vacancies] * 5)
+    candidates = [create_candidate(next(vacancy_ids)) for _ in range(15000)]
+    session.add_all(candidates)
     await session.commit()
 
-    for _ in range(6):
-        recruiter = random.choice(recruiters)
-        session.add(create_recruiter_task(recruiter.id))
+    vacancy_files = [create_vacancy_file() for _ in range(5000)]
+    session.add_all(vacancy_files)
+    await session.commit()
+
+    recruiters_tasks = [create_recruiter_task(random.choice(recruiters).id) for _ in range(5000)]
+    session.add_all(recruiters_tasks)
 
     await session.commit()
 
-    for _ in range(5):
-        candidate_id = random.randint(1, 10)
-        recruiter = random.choice(recruiters)
-        tech_id = random.randint(1, 10)
-        session.add(create_interview(candidate_id, recruiter.id, tech_id))
+    query = await session.execute(select(Candidate).filter(Candidate.status == 'hired'))
+    hired_candidates = query.scalars().all()
+    query = await session.execute(select(Vacancy))
+    vacancies = query.scalars().all()
 
-    for _ in range(4000):
-        recruiter = random.choice(recruiters)
-        session.add(create_hire_quality_metrics(recruiter.name))
+    vacancy_dict = {vacancy.id: vacancy.recruiter_id for vacancy in vacancies}
+    interviews = [create_interview(candidate.id,
+                                   vacancy_dict[candidate.vacancy_id],
+                                   random.choice(tech_specialists).id,
+                                   'completed') for candidate in hired_candidates]
+    session.add_all(interviews)
 
-    for _ in range(4000):
-        recruiter = random.choice(recruiters)
-        session.add(create_screen_time_metrics(recruiter.name))
+    await session.commit()
 
-    for _ in range(5000):
-        session.add(create_employee())
+    query = await session.execute(select(Candidate).filter(Candidate.status == 'applied'))
+    applied_candidates = query.scalars().all()
+    interviews = [create_interview(candidate.id,
+                                   vacancy_dict[candidate.vacancy_id],
+                                   random.choice(tech_specialists).id,
+                                   random.choice(['scheduled', 'canceled'])) for candidate in applied_candidates]
+    session.add_all(interviews)
+
+    quality_metrics = [create_hire_quality_metrics(random.choice(recruiters).name) for _ in range(10000)]
+    session.add_all(quality_metrics)
+
+    screen_time_metrics = [create_screen_time_metrics(random.choice(recruiters).name) for _ in range(10000)]
+    session.add_all(screen_time_metrics)
+
+    employees = [create_employee(random.choice(recruiters).id) for _ in range(5000)]
+    session.add_all(employees)
 
     await session.commit()
 
