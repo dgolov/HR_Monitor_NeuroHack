@@ -61,6 +61,8 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     salary = Column(Integer)
+    grade = Column(Integer)
+    efficiently = Column(Integer)
 
     employees = relationship("Employee", back_populates="recruiter")
 
