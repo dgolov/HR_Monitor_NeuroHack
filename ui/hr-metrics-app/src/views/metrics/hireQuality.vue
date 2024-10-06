@@ -2,7 +2,7 @@
     <div class="container mt-4">
         <h2 class="text-center mb-4">Качество найма по рекрутеру за период</h2>
         <div class="d-flex justify-content-end mb-3">
-            <button class="btn btn-secondary" @click="generateReport">Сформировать отчет</button>
+            <button class="btn btn-secondary" @click="generateReport('hire-quality')">Сформировать отчет</button>
         </div>
         <div class="form-group mb-3" v-if="recruters.length">
             <label>Выберите рекрутера:</label>
