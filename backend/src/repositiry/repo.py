@@ -75,6 +75,8 @@ class Repository(RepositoryBase):
     recruiter_task = models.RecruiterTask
     hire_time = models.HireTimeMetrics
     vacancy_cost = models.VacancyCostMetrics
+    average_candidate_to_vacancy = models.AverageCandidateToVacancyMetrics
+
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
@@ -402,4 +404,26 @@ class Repository(RepositoryBase):
 
     async def get_all_recruiters(self):
         query = select(self.user).where(self.user.role=="recruiter")
+        return await self._all(query=query)
+
+    async def get_average_candidate_to_vacancy(
+        self,
+        recruiter_name: str | None = None,
+        recruiter_id: int | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+    ) -> list[models.HireTimeMetrics]:
+        query = select(self.average_candidate_to_vacancy)
+        if recruiter_name:
+            query = query.where(self.average_candidate_to_vacancy.recruiter_name == recruiter_name)
+        elif recruiter_id:
+            query = query.join(self.user).where(self.user.id == recruiter_id)
+        if date_start and date_end:
+            query = query.where(
+                and_(
+                    self.average_candidate_to_vacancy.month >= date_start,
+                    self.average_candidate_to_vacancy.month <= date_end,
+                ),
+            )
+        query = query.order_by(self.average_candidate_to_vacancy.month)
         return await self._all(query=query)
