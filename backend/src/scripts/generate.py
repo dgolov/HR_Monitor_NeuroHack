@@ -53,7 +53,7 @@ def create_candidate(vacancy_id, is_referal, vacancy_status):
 def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
     created_at = fake.date_between(start_date="-3y", end_date="-1y")
     updated_at = created_at + timedelta(days=random.choice(list(range(30, 50))))
-    created_at = fake.date_between(start_date='-3y', end_date='-1y')
+    created_at = fake.date_between(start_date="-3y", end_date="-1y")
     is_referral = random.choice([True, False, False, False, False])
     update_range = (1, 7) if is_referral else (10, 20)
     updated_at = created_at + timedelta(days=random.choice(list(range(*update_range))))
@@ -62,12 +62,12 @@ def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
     status = random.choice(["open", "closed", "in progress"])
     viewed_count = random.randint(0, 1000)
     responded_count = viewed_count - random.randint(0, 300) or 0
-    if status != "closed":
 
-    if status != 'closed':
+    if status != "closed":
         closed_at = None
         closing_cost = None
         is_referral = None
+
     return Vacancy(
         uuid=uuid4(),
         title=fake.job(),
