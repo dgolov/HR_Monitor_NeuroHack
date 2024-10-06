@@ -8,7 +8,7 @@
 
 <script>
 import AppNavbar from './components/AppNavbar.vue';
-import BarChart from './components/BarChart.vue';
+import BarChart from './views/BarChart.vue';
 
 export default {
   name: 'App',
