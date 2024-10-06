@@ -208,7 +208,7 @@ class Repository(RepositoryBase):
                 ),
             )
         if offset:
-            query = query.limit(nt(offset)).offset(int(offset) * (int(page) - 1))
+            query = query.limit(int(offset)).offset(int(offset) * (int(page) - 1))
         return await self._all(query=query)
 
     async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:
