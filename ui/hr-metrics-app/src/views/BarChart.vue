@@ -27,13 +27,32 @@
             <option v-for="recruter in recruters" :key="recruter" :value="recruter">{{ recruter.name }}</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label for="yearSelector">Фильтр по датам:</label>
-          <select id="yearSelector" class="form-control mt-1" v-model="selectedYear" @change="updateChartData">
-            <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-          </select>
+        <div class="row mt-4 align-items-end">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="startDate">Start Date:</label>
+              <Datepicker 
+                v-model="startDate"
+                :format="dateFormat"
+                input-class="form-control"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="endDate">End Date:</label>
+              <Datepicker 
+                v-model="endDate"
+                :format="dateFormat"
+                input-class="form-control"
+              />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-secondary mt-4" @click="" style="height: 30px;">Применить</button>
+          </div>
         </div>
+
       </div>
       <div class="col-md-6 mb-4">
         <div class="card">
@@ -86,6 +105,7 @@ import {
   TimeScale,     
   Legend            
 } from 'chart.js';
+import Datepicker from 'vue3-datepicker';
 import 'chartjs-adapter-date-fns';
 import { apiUrl } from '@/api';
 
@@ -105,7 +125,7 @@ ChartJS.register(
 export default {
   name: 'BarChart',
   components: {
-    LineChart: Line,
+    LineChart: Line, Datepicker
   },
   data() {
     return {
@@ -163,7 +183,10 @@ export default {
       formattedPerformanceData: [],
       formattedHireQualityData: [],
       recruitersData: [],
-      hireQualityData: []
+      hireQualityData: [],
+      startDate: null,
+      endDate: null,
+      dateFormat: 'yyyy-MM-dd',
     };
   },
   created() {
