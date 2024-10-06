@@ -36,9 +36,10 @@ class Vacancy(Base):
     vacancy_file_id = Column(Integer)
     creator_id = Column(Integer)
     recruiter_id = Column(Integer, ForeignKey("user.id"))
+    cost = Column(Integer, default=0)
+    is_referral = Column(Boolean, default=False)
 
     recruiter = relationship("User")
-
 
 
 class VacancyFile(Base):
