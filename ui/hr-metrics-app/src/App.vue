@@ -22,5 +22,8 @@ export default {
 #app {
   text-align: center;
 }
+a {
+  color: brown;
+}
 </style>
 
