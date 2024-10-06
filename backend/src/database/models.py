@@ -37,6 +37,9 @@ class Vacancy(Base):
     creator_id = Column(Integer)
     recruiter_id = Column(Integer, ForeignKey("user.id"))
 
+    recruiter = relationship("User")
+
+
 
 class VacancyFile(Base):
     __tablename__ = "vacancy_file"
