@@ -109,7 +109,7 @@ async def vacancy_cost(
 
 
 @router.get("/avarage-vacancy-cost")
-async def vacancy_cost(
+async def avarage_vacancy_cost(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
