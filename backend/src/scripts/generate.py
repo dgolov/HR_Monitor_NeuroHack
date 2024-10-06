@@ -1,9 +1,9 @@
 import random
 from datetime import timedelta
-from sqlalchemy import select
 from uuid import uuid4
 
 from faker import Faker
+from sqlalchemy import select
 
 from src.database.db import async_session_maker
 from src.database.models import (
@@ -15,6 +15,7 @@ from src.database.models import (
     ScreenTimeMetrics,
     User,
     Vacancy,
+    VacancyCostComparisonMetrics,
     VacancyFile,
 )
 from src.settings import logger
@@ -38,13 +39,13 @@ def create_candidate(vacancy_id):
 
 
 def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
-    created_at = fake.date_between(start_date='-3y', end_date='-1y')
+    created_at = fake.date_between(start_date="-3y", end_date="-1y")
     updated_at = created_at + timedelta(days=random.choice(list(range(30, 50))))
     closed_at = updated_at + timedelta(days=random.choice(list(range(10, 20))))
     status = random.choice(["open", "closed", "in progress"])
     viewed_count = random.randint(0, 1000)
     responded_count = viewed_count - random.randint(0, 300) or 0
-    if status != 'closed':
+    if status != "closed":
         closed_at = None
     return Vacancy(
         uuid=uuid4(),
@@ -90,10 +91,10 @@ def create_user(role: str):
 
 
 def create_interview(candidate_id: int, recruiter_id: int, tech_id: int, status: str) -> Interview:
-    created_at = fake.date_time_between(start_date='-3y', end_date='-1y')
+    created_at = fake.date_time_between(start_date="-3y", end_date="-1y")
     date_start_at = created_at + timedelta(days=random.randint(1, 7))
     date_end_at = date_start_at + timedelta(hours=random.randint(1, 3))
-    if status in ['scheduled', 'canceled']:
+    if status in ["scheduled", "canceled"]:
         date_start_at = None
         date_end_at = None
     return Interview(
@@ -113,11 +114,11 @@ def create_interview(candidate_id: int, recruiter_id: int, tech_id: int, status:
 
 
 def create_recruiter_task(recruiter_id: int) -> RecruiterTask:
-    created_at = fake.date_between(start_date='-3y', end_date='-1y')
+    created_at = fake.date_between(start_date="-3y", end_date="-1y")
     started_at = created_at + timedelta(days=random.choice(list(range(1, 4))))
     closed_at = started_at + timedelta(days=random.choice(list(range(30, 80))))
     status = random.choice(["open", "pending", "completed"])
-    if status != 'completed':
+    if status != "completed":
         closed_at = None
     return RecruiterTask(
         uuid=uuid4(),
@@ -133,7 +134,7 @@ def create_recruiter_task(recruiter_id: int) -> RecruiterTask:
 
 
 def create_hire_quality_metrics(recruiter_name):
-    _date = fake.date_between(start_date='-3y', end_date='today')
+    _date = fake.date_between(start_date="-3y", end_date="today")
 
     return HireQualityMetrics(
         recruiter_name=recruiter_name,
@@ -143,7 +144,7 @@ def create_hire_quality_metrics(recruiter_name):
 
 
 def create_screen_time_metrics(recruiter_name):
-    _date = fake.date_between(start_date='-3y', end_date='today')
+    _date = fake.date_between(start_date="-3y", end_date="today")
 
     return ScreenTimeMetrics(
         recruiter_name=recruiter_name,
@@ -152,8 +153,19 @@ def create_screen_time_metrics(recruiter_name):
     )
 
 
+def create_vacancy_cost_comparison_metrics(recruiter_name):
+    _date = fake.date_between(start_date="-3y", end_date="today")
+
+    return VacancyCostComparisonMetrics(
+        recruiter_name=recruiter_name,
+        month=_date,
+        value=round(random.uniform(0, 1), 3),
+        is_reffer=random.choice([True, False]),
+    )
+
+
 def create_employee(recruiter_id):
-    date_started = fake.date_between(start_date='-3y', end_date='-1y')
+    date_started = fake.date_between(start_date="-3y", end_date="-1y")
     date_fired = random.choice([date_started + timedelta(days=random.randint(1, 365)), None])
 
     return Employee(
@@ -168,17 +180,16 @@ def create_employee(recruiter_id):
 
 
 async def populate_database() -> None:
-    recruiters = [create_user('recruiter') for _ in range(10)]
+    recruiters = [create_user("recruiter") for _ in range(10)]
     session.add_all(recruiters)
     await session.commit()
-    tech_specialists = [create_user('tech') for _ in range(10)]
+    tech_specialists = [create_user("tech") for _ in range(10)]
     session.add_all(tech_specialists)
     await session.commit()
 
     vacancies = [create_vacancy(random.choice(recruiters).id, _) for _ in range(5000)]
     session.add_all(vacancies)
     await session.commit()
-
 
     query = await session.execute(select(Vacancy))
     vacancies = query.scalars().all()
@@ -196,26 +207,36 @@ async def populate_database() -> None:
 
     await session.commit()
 
-    query = await session.execute(select(Candidate).filter(Candidate.status == 'hired'))
+    query = await session.execute(select(Candidate).filter(Candidate.status == "hired"))
     hired_candidates = query.scalars().all()
     query = await session.execute(select(Vacancy))
     vacancies = query.scalars().all()
 
     vacancy_dict = {vacancy.id: vacancy.recruiter_id for vacancy in vacancies}
-    interviews = [create_interview(candidate.id,
-                                   vacancy_dict[candidate.vacancy_id],
-                                   random.choice(tech_specialists).id,
-                                   'completed') for candidate in hired_candidates]
+    interviews = [
+        create_interview(
+            candidate.id,
+            vacancy_dict[candidate.vacancy_id],
+            random.choice(tech_specialists).id,
+            "completed",
+        )
+        for candidate in hired_candidates
+    ]
     session.add_all(interviews)
 
     await session.commit()
 
-    query = await session.execute(select(Candidate).filter(Candidate.status == 'applied'))
+    query = await session.execute(select(Candidate).filter(Candidate.status == "applied"))
     applied_candidates = query.scalars().all()
-    interviews = [create_interview(candidate.id,
-                                   vacancy_dict[candidate.vacancy_id],
-                                   random.choice(tech_specialists).id,
-                                   random.choice(['scheduled', 'canceled'])) for candidate in applied_candidates]
+    interviews = [
+        create_interview(
+            candidate.id,
+            vacancy_dict[candidate.vacancy_id],
+            random.choice(tech_specialists).id,
+            random.choice(["scheduled", "canceled"]),
+        )
+        for candidate in applied_candidates
+    ]
     session.add_all(interviews)
 
     quality_metrics = [create_hire_quality_metrics(random.choice(recruiters).name) for _ in range(10000)]
@@ -223,6 +244,11 @@ async def populate_database() -> None:
 
     screen_time_metrics = [create_screen_time_metrics(random.choice(recruiters).name) for _ in range(10000)]
     session.add_all(screen_time_metrics)
+
+    cost_comparison_metrics = [
+        create_vacancy_cost_comparison_metrics(random.choice(recruiters).name) for _ in range(10000)
+    ]
+    session.add_all(cost_comparison_metrics)
 
     employees = [create_employee(random.choice(recruiters).id) for _ in range(5000)]
     session.add_all(employees)

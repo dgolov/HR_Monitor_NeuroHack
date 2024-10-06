@@ -141,9 +141,14 @@ class HireTimeMetrics(Metrics):
     __tablename__ = "hire_time_metrics"
 
 
+class AverageCandidateToVacancyMetrics(Metrics):
+    __tablename__ = "average_candidate_to_vacancy_metrics"
+
+
 class VacancyCostMetrics(Metrics):
     __tablename__ = "vacancy_cost_metrics"
 
 
-class AverageCandidateToVacancyMetrics(Metrics):
-    __tablename__ = "average_candidate_to_vacancy_metrics"
+class VacancyCostComparisonMetrics(Metrics):
+    __tablename__ = "vacancy_cost_comparison_metrics"
+    is_referral = Column(Boolean, default=False)

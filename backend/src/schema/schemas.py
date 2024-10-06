@@ -53,6 +53,7 @@ class Vacancy(Base):
     class Config:
         from_attributes = True
 
+
 class VacancyCreate(Base):
     uuid: UUID4 = uuid.uuid4()
     description: str
@@ -140,32 +141,27 @@ class VacancyAverageTimeResponse(BaseModel):
     data: Dict[int, Dict[int, MonthData]]
 
 
-class ScreenTimeMetrics(BaseModel):
+class Metrics(BaseModel):
     id: int
     recruiter_name: str
     month: date
     value: float
 
 
-class HireTimeMetrics(BaseModel):
-    id: int
-    recruiter_name: str
-    month: date
-    value: float
+class ScreenTimeMetrics(Metrics): ...
 
 
-class HireQualityMetrics(BaseModel):
-    id: int
-    recruiter_name: str
-    month: date
-    value: float
+class HireTimeMetrics(Metrics): ...
 
 
-class VacancyCostMetrics(BaseModel):
-    id: int
-    recruiter_name: str
-    month: date
-    value: float
+class HireQualityMetrics(Metrics): ...
+
+
+class VacancyCostMetrics(Metrics): ...
+
+
+class VacancyCostMetricsComparison(Metrics):
+    is_refferral: bool
 
 
 class ReferralCountResponse(BaseModel):

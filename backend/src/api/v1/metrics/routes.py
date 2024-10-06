@@ -108,6 +108,18 @@ async def vacancy_cost(
     return await repository.get_vacancy_cost_data(recruiter_name, date_start, date_end, recruiter_id)
 
 
+@router.get("/vacancy-cost-comparison")
+async def vacancy_cost_comparison(
+    recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> list[schemas.VacancyCostMetricsComparison]:
+    """Средняя стоимость закрытия вакансии по рекрутеру за период."""
+    return await repository.get_vacancy_cost_comparison_data(recruiter_name, date_start, date_end, recruiter_id)
+
+
 @router.get("/avarage-vacancy-cost")
 async def avarage_vacancy_cost(
     recruiter_id: int | None = None,

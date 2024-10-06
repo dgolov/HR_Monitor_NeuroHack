@@ -75,6 +75,7 @@ class Repository(RepositoryBase):
     recruiter_task = models.RecruiterTask
     hire_time = models.HireTimeMetrics
     vacancy_cost = models.VacancyCostMetrics
+    vacancy_cost_comparison = models.VacancyCostComparisonMetrics
     average_candidate_to_vacancy = models.AverageCandidateToVacancyMetrics
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
@@ -327,6 +328,39 @@ class Repository(RepositoryBase):
                 ),
             )
         query = query.order_by(self.vacancy_cost.month)
+        return await self._all(query=query)
+
+    async def get_vacancy_cost_comparison_data(
+        self,
+        recruiter_name: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        recruiter_id: int | None = None,
+    ) -> list[models.VacancyCostComparisonMetrics]:
+        model = self.vacancy_cost_comparison
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+
+    async def get_metrics_data(
+        self,
+        model: models.Metrics,
+        recruiter_name: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        recruiter_id: int | None = None,
+    ) -> list[models.VacancyCostComparisonMetrics]:
+        query = select(model)
+        if recruiter_name:
+            query = query.where(model.recruiter_name == recruiter_name)
+        elif recruiter_id:
+            query = self.join_user_model(recruiter_id, query, model)
+        if date_start and date_end:
+            query = query.where(
+                and_(
+                    model.month >= date_start,
+                    model.month <= date_end,
+                ),
+            )
+        query = query.order_by(model.month)
         return await self._all(query=query)
 
     async def get_fired_employees(self, reference_date: datetime, six_months_ago: datetime) -> List[models.Employee]:
