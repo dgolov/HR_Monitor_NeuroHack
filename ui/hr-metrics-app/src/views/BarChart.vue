@@ -49,7 +49,7 @@
             </div>
           </div>
           <div class="col-md-4">
-            <button class="btn btn-secondary mt-4" @click="" style="height: 30px;">Применить</button>
+            <button class="btn btn-secondary mt-4" style="height: 30px;">Применить</button>
           </div>
         </div>
 
