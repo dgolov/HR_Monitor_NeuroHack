@@ -1,6 +1,37 @@
 <template>
     <div class="container mt-4">
-      <h2 class="text-center mb-4">Список кандидатов</h2>
+        <h2 class="text-center mb-4">Список кандидатов</h2>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="statusSelector">Выберите статус:</label>
+                    <select 
+                        id="statusSelector" 
+                        class="form-control" 
+                        v-model="currentStatus" 
+                        @change="fetchCandidates"
+                    >
+                    <option key="" value="">Все</option>
+                    <option v-for="status in statuses" :key="status.value" :value="status.value">
+                        {{ status.name }}
+                    </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="row d-flex align-items-center"> 
+                        <div class="col-md-8">
+                            <label>Фильтр по id вакансии:</label>
+                            <input type="text" class="form-control" v-model="vacancyId" v-on:keyup.enter="fetchCandidates">
+                        </div>
+                        <div class="col-md-3 mt-4">
+                            <button type="button" class="btn btn-secondary w-100" @click="fetchCandidates">Фильтр</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
       <table class="table table-striped">
         <thead>
           <tr>
@@ -13,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="candidate in paginatedCandidates" :key="candidate.uuid">
+          <tr v-for="candidate in candidates" :key="candidate.uuid">
             <td>{{ candidate.name }}</td>
             <td>{{ candidate.other_info.experience }}</td>
             <td>
@@ -30,7 +61,7 @@
                 </span>
               </div>
             </td>
-            <td>{{ candidate.status }}</td>
+            <td>{{ mapStatus(candidate.status) }}</td>
             <td>
               <span class="badge" :class="{'bg-success': candidate.is_referral, 'bg-secondary': !candidate.is_referral}">
                 {{ candidate.is_referral ? 'Да' : 'Нет' }}
@@ -58,88 +89,67 @@
   </template>
   
   <script>
+  import { apiUrl } from '@/api';
+
   export default {
     data() {
       return {
         currentPage: 1,
-        candidates: [
-          {
-            id: 1,
-            uuid: "f6ee4ec0-8f2f-4fa4-8aa8-54ed0b7e5900",
-            name: "Julia Lowery",
-            is_referral: true,
-            other_info: {
-              hobbies: ["woman", "pull", "commercial"],
-              experience: "Lecturer, higher education",
-            },
-            resume_link: "https://phillips.com/",
-            status: "hired",
-            vacancy_id: 7,
-          },
-          {
-            id: 2,
-            uuid: "d05fbec0-d6e7-45a6-acef-7b1b483a334c",
-            name: "Christopher Parker",
-            is_referral: true,
-            other_info: {
-              hobbies: ["sort", "front", "low"],
-              experience: "Waste management officer",
-            },
-            resume_link: "https://www.patel.com/",
-            status: "interviewed",
-            vacancy_id: 9,
-          },
-          // Добавьте больше кандидатов для тестирования пагинации
-          {
-            id: 3,
-            uuid: "d3fbedbc-ecf2-44d8-8ed2-6d99bde00f3f",
-            name: "Alice Johnson",
-            is_referral: false,
-            other_info: {
-              hobbies: ["reading", "traveling", "music"],
-              experience: "Software Engineer",
-            },
-            resume_link: "https://example.com/",
-            status: "hired",
-            vacancy_id: 10,
-          },
-          {
-            id: 4,
-            uuid: "4c3d69c1-0ecf-43da-84da-3d6815c8d215",
-            name: "David Smith",
-            is_referral: false,
-            other_info: {
-              hobbies: ["gaming", "cooking"],
-              experience: "Data Analyst",
-            },
-            resume_link: "https://example.com/",
-            status: "pending",
-            vacancy_id: 11,
-          },
-          // ... добавьте больше кандидатов для тестирования пагинации
-        ],
+        currentStatus: "",
+        vacancyId: "",
+        candidates: [],
+        offset: 50,
+        statuses: [
+            {value: "applied", name: "Принят"},
+            {value: "interviewed", name: "Приглашен на собеседование"},
+            {value: "hired", name: "Принят на работу"},
+            {value: "rejected", name: "Отклонен"}
+        ]
       };
     },
     computed: {
       totalPages() {
-        return Math.ceil(this.candidates.length / 2); // Предположим, что мы показываем 2 кандидата на странице
+        return 10;
       },
       paginatedCandidates() {
-        const start = (this.currentPage - 1) * 2;
-        return this.candidates.slice(start, start + 2);
+        const start = (this.currentPage - 1) * this.offset;
+        return this.candidates.slice(start, start + this.offset);
       },
     },
+    created() {
+        this.fetchCandidates();
+    },
     methods: {
-      changePage(page) {
-        if (page < 1 || page > this.totalPages) return;
-        this.currentPage = page;
-        this.updateURL();
-      },
-      updateURL() {
-        const url = new URL(window.location);
-        url.searchParams.set('page', this.currentPage);
-        window.history.pushState({}, '', url);
-      },
+        async fetchCandidates() { 
+            try {
+                const response = await fetch(`${apiUrl}/candidates/?status=${this.currentStatus}&vacancy_id=${this.vacancyId}&page=${this.currentPage}&offset=${this.offset}`);
+                if (!response.ok) {
+                throw new Error(`Ошибка сети: ${response.statusText}`);
+                }
+                this.candidates = await response.json();
+            } catch (error) {
+                console.error('Ошибка при загрузке рекрутеров:', error);
+            }
+        },
+        mapStatus(statusValue) {
+            for (let baseStatus of this.statuses) {
+                if (statusValue == baseStatus.value) {
+                    return baseStatus.name;
+                }
+            }
+            return "Не определен";
+        },
+        changePage(page) {
+            if (page < 1 || page > this.totalPages) return;
+            this.currentPage = page;
+            this.updateURL();
+            this.fetchCandidates();
+        },
+        updateURL() {
+            const url = new URL(window.location);
+            url.searchParams.set('page', this.currentPage);
+            window.history.pushState({}, '', url);
+        },
     },
     mounted() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -156,14 +166,14 @@
     background-color: #f8f9fa;
   }
   .pagination .page-link {
-    color: #6c757d; /* Цвет текста */
+    color: #6c757d;
   }
   .pagination .page-item.disabled .page-link {
-    color: #6c757d; /* Цвет для отключенных ссылок */
+    color: #6c757d; 
   }
   .pagination .active .page-link {
-  background-color: #6c757d; /* Цвет фона активной страницы */
-  color: #fff; /* Цвет текста активной страницы */
+  background-color: #6c757d; 
+  color: #fff;
 }
   </style>
   
