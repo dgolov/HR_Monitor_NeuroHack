@@ -182,8 +182,8 @@ class Repository(RepositoryBase):
         recruiter_id: str | None = None,
         date_start: datetime | None = None,
         date_end: datetime | None = None,
-        page: int | None = 1,
-        offset: int | None = None,
+        page: str | None = "1",
+        offset: str | None = None,
     ) -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
@@ -208,7 +208,7 @@ class Repository(RepositoryBase):
                 ),
             )
         if offset:
-            query = query.limit(offset).offset(offset * (page - 1))
+            query = query.limit(nt(offset)).offset(int(offset) * (int(page) - 1))
         return await self._all(query=query)
 
     async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:

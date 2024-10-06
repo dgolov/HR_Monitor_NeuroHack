@@ -26,7 +26,7 @@ async def create_candidate(
 @router.get("/")
 async def get_candidates(
         status: str | None = None,
-        vacancy_id: int | None = None,
+        vacancy_id: str | None = None,
         page: str | None = '1',
         offset: str | None = None,
         repository: Repository = repo_dep
