@@ -11,7 +11,6 @@
             <p><strong>Email:</strong> {{ itemRecruter.email }}</p>
             <p><strong>Грейд:</strong> 5 / 5</p>
             <p><strong>Оценка эффективности:</strong> 4 / 5</p>
-    
           </div>
           <div class="recruiter-photo ms-4">
             <img src="@/static/0471dab9-d6c5-4d64-a002-59de01a881db.webp" 
