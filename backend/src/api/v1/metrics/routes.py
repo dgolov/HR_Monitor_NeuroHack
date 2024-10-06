@@ -180,16 +180,21 @@ async def vacancy_cost_comparison(
 ) -> list[schemas.VacancyCostMetricsComparison]:
     """Сравнение стоимости закрытия вакансии по рефералу и без, по рекрутеру за период."""
     return await repository.get_vacancy_cost_comparison_data(
-        recruiter_name, date_start, date_end, recruiter_id, page, offset
+        recruiter_name,
+        date_start,
+        date_end,
+        recruiter_id,
+        page,
+        offset,
     )
 
 
 @router.get("/average-vacancy-cost")
 async def average_vacancy_cost(
-        recruiter_id: int | None = None,
-        date_start: datetime | None = None,
-        date_end: datetime | None = None,
-        repository: Repository = repo_dep,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
 ) -> schemas.VacancyCostResponse:
     """Средняя стоимость закрытия вакансий по годам и месяцам."""
     closed_vacancies = await repository.get_vacancies(
@@ -231,7 +236,7 @@ async def average_vacancy_cost(
 
             result[year].months[month] = schemas.VacanciesMonthData(
                 vacancies_count=vacancies_count,
-                vacancy_cost=vacancy_cost
+                vacancy_cost=vacancy_cost,
             )
 
     # Возвращаем результат в формате Pydantic модели
@@ -386,7 +391,7 @@ async def get_average_candidate_to_vacancy(
     reference_date: datetime,
     repository: Repository = repo_dep,
 ) -> dict[str, float]:
-    """Среднне кол-во откликов на закрытую вокансии за 6 месяцев от референс_дэйт."""
+    """Среднне кол-во откликов на закрытые вакансии за 6 месяцев от референс_дэйт."""
     six_months_ago = reference_date - timedelta(days=6 * 30)
     all_recruiters = await repository.get_all_recruiters()
     average_replays_vacancy_by_recruiter = {}
@@ -422,5 +427,10 @@ async def get_average_candidate_to_vacancy_history(
 ) -> list[schemas.HireTimeMetrics]:
     """Время закрытия вакансии по рекрутеру за период."""
     return await repository.get_average_candidate_to_vacancy(
-        recruiter_name, date_start, date_end, recruiter_id, page, offset
+        recruiter_name,
+        date_start,
+        date_end,
+        recruiter_id,
+        page,
+        offset,
     )
