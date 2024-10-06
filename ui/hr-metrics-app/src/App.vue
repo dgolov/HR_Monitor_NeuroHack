@@ -19,7 +19,6 @@ export default {
 </script>
 
 <style>
-/* Основные стили */
 #app {
   text-align: center;
 }

@@ -27,7 +27,6 @@ const routes = [
   },
 ];
 
-// Использование `createRouter` и `createWebHistory` для Vue 3
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
