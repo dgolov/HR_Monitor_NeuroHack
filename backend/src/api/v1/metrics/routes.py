@@ -362,3 +362,15 @@ async def get_average_candidate_to_vacancy(
         average_replays_vacancy_by_recruiter[recruiter.name] = average_candidate_to_vacancy
 
     return average_replays_vacancy_by_recruiter
+
+
+@router.get("/average-candidate-to-vacancy-history")
+async def get_average_candidate_to_vacancy_history(
+        recruiter_name: str | None = None,
+        recruiter_id: int | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        repository: Repository = repo_dep,
+) -> list[schemas.HireTimeMetrics]:
+    """Время закрытия вакансии по рекрутеру за период."""
+    return await repository.get_average_candidate_to_vacancy(recruiter_name, date_start, date_end, recruiter_id)

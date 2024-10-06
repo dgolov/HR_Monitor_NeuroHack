@@ -1,3 +1,4 @@
+from enum import unique
 from uuid import uuid4
 
 from sqlalchemy import JSON, UUID, Boolean, Column, Date, Float, ForeignKey, Integer, String
@@ -53,7 +54,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     uuid = Column(UUID, unique=True, default=uuid4)
     password_hash = Column(String())
-    name = Column(String())
+    name = Column(String(), unique=True)
     email = Column(String(), unique=True)
     role = Column(String())
     phone = Column(String())
@@ -100,7 +101,7 @@ class Interview(Base):
 class ScreenTimeMetrics(Base):
     __tablename__ = "screen_time_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String(), ForeignKey("user.name"))
+    recruiter_name = Column(String())
     month = Column(Date)
     value = Column(Float)
 
@@ -108,7 +109,7 @@ class ScreenTimeMetrics(Base):
 class HireQualityMetrics(Base):
     __tablename__ = "hire_quality_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String(), ForeignKey("user.name"))
+    recruiter_name = Column(String())
     month = Column(Date)
     value = Column(Float)
 
@@ -116,7 +117,7 @@ class HireQualityMetrics(Base):
 class HireTimeMetrics(Base):
     __tablename__ = "hire_time_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String(), ForeignKey("user.name"))
+    recruiter_name = Column(String())
     month = Column(Date)
     value = Column(Float)
 
@@ -124,7 +125,7 @@ class HireTimeMetrics(Base):
 class VacancyCostMetrics(Base):
     __tablename__ = "vacancy_cost_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String(), ForeignKey("user.name"))
+    recruiter_name = Column(String())
     month = Column(Date)
     value = Column(Float)
 
@@ -142,10 +143,9 @@ class Employee(Base):
 
     recruiter = relationship("User", back_populates="employees")
 
-
 class AverageCandidateToVacancyMetrics(Base):
     __tablename__ = "average_candidate_to_vacancy_metrics"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    recruiter_name = Column(String(), ForeignKey("user.name"))
+    recruiter_name = Column(String())
     month = Column(Date)
     value = Column(Float)
