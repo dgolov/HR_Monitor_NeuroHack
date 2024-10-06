@@ -183,7 +183,7 @@ def create_vacancy_cost_comparison_metrics(recruiter_name):
         recruiter_name=recruiter_name,
         month=_date,
         value=round(random.uniform(0, 1), 3),
-        is_reffer=random.choice([True, False]),
+        is_referral=random.choice([True, False]),
     )
 
 
