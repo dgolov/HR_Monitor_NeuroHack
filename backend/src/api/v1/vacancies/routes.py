@@ -28,13 +28,14 @@ async def get_vacancies(
     vtype: str | None = Query(None),
     recruiter_id: int | None = Query(None),
     status: str | None = Query(None),
-    page: str | None = 1,
+    page: str | None = "1",
     offset: int | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.Vacancy]:
     logger.debug(
         f"get vacancies called with {vtype=}, {recruiter_id=}, {status=}",
     )
+    page=int(page)
     return await repository.get_vacancies(
         filter_by={
             "type": vtype,
