@@ -11,6 +11,7 @@ class Base(BaseModel):
 
 class User(Base):
     uuid: UUID4
+    id: int
     name: str
     email: str
     role: str
