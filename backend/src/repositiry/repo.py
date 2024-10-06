@@ -175,7 +175,7 @@ class Repository(RepositoryBase):
 
     async def get_candidates(
         self,
-        vacancy_id: Optional[int] = None,
+        vacancy_id: Optional[str] = None,
         status: Optional[str] = None,
         recruiter_id: str | None = None,
         date_start: datetime | None = None,
@@ -185,7 +185,7 @@ class Repository(RepositoryBase):
     ) -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
-            query = query.where(self.candidate.vacancy_id == vacancy_id)
+            query = query.where(self.candidate.vacancy_id == int(vacancy_id))
         if status:
             query = query.where(self.candidate.status == status)
         if recruiter_id:
