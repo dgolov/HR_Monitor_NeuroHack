@@ -161,7 +161,7 @@ class VacancyCostMetrics(Metrics): ...
 
 
 class VacancyCostMetricsComparison(Metrics):
-    is_refferral: bool
+    is_referral: bool
 
 
 class ReferralCountResponse(BaseModel):
