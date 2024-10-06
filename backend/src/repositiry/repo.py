@@ -108,7 +108,7 @@ class Repository(RepositoryBase):
         date_start: Optional[datetime] = None,
         date_end: Optional[datetime] = None,
     ) -> List[models.Vacancy]:
-        query = select(self.vacancy)
+        query = select(self.vacancy).options(joinedload(models.Vacancy.recruiter))
         if creator_id:
             query = query.where(self.vacancy.creator_id == creator_id)
         if status:

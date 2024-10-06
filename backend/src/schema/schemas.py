@@ -48,6 +48,10 @@ class Vacancy(Base):
     vacancy_file_id: int
     creator_id: int
 
+    recruiter: Optional[User]
+
+    class Config:
+        from_attributes = True
 
 class VacancyCreate(Base):
     uuid: UUID4 = uuid.uuid4()
@@ -190,7 +194,7 @@ class RecruiterTask(BaseModel):
     created_at: datetime
     started_at: datetime
     closed_at: datetime
-    recruiter: Optional[User]  # Include recruiter info
+    recruiter: Optional[User]
 
     class Config:
         from_attributes = True
