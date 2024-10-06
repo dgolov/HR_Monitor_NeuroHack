@@ -78,6 +78,8 @@ def create_user():
         is_verified=random.choice([True, False]),
         is_active=True,
         salary=random.randrange(2000, 5000),
+        grade=random.randrange(1, 5),
+        efficiently=random.randrange(1, 5),
     )
 
 
