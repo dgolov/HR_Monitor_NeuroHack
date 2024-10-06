@@ -1,21 +1,20 @@
 <template>
   <div id="app">
-    <AppNavbar />
-    <BarChart />
-    <KanbanBoard />
+    <component :is="layout"></component>
   </div>
 </template>
 
 <script>
-import AppNavbar from './components/AppNavbar.vue';
-import BarChart from './views/BarChart.vue';
 
 export default {
   name: 'App',
-  components: {
-    BarChart,
-    AppNavbar
+
+  computed: {
+    layout(){
+      return this.$route.meta.layout || "default-layout"
+    }
   }
+
 };
 </script>
 
