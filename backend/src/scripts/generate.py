@@ -16,7 +16,8 @@ from src.database.models import (
     ScreenTimeMetrics,
     User,
     Vacancy,
-    VacancyFile,
+    VacancyFile, OwnerSatisfactionMetrics, AverageCandidateToVacancyMetrics, VacancyCostMetrics,
+    VacancyCostComparisonMetrics, HireTimeMetrics,
 )
 from src.settings import logger
 
@@ -177,6 +178,73 @@ def create_screen_time_metrics(recruiter_name):
     return data
 
 
+def create_hire_time_metrics(recruiter_name):
+    data = []
+    for year in (2021, 2022, 2023):
+        for month in (range(1, 13)):
+            _date = dt.date(year, month, 1)
+            data.append(HireTimeMetrics(
+                recruiter_name=recruiter_name,
+                month=_date,
+                value=random.randint(15, 60)
+            ))
+    return data
+
+
+def create_satisfaction_metrics(recruiter_name):
+    data = []
+    for year in (2021, 2022, 2023):
+        for month in (range(1, 13)):
+            _date = dt.date(year, month, 1)
+            data.append(OwnerSatisfactionMetrics(
+                recruiter_name=recruiter_name,
+                month=_date,
+                value=random.randint(1, 10)
+            ))
+    return data
+
+
+def create_average_candidate_metrics(recruiter_name):
+    data = []
+    for year in (2021, 2022, 2023):
+        for month in (range(1, 13)):
+            _date = dt.date(year, month, 1)
+            data.append(AverageCandidateToVacancyMetrics(
+                recruiter_name=recruiter_name,
+                month=_date,
+                value=random.randint(1, 100)
+            ))
+    return data
+
+
+def create_vacancy_cost_metrics(recruiter_name):
+    data = []
+    for year in (2021, 2022, 2023):
+        for month in (range(1, 13)):
+            _date = dt.date(year, month, 1)
+            data.append(VacancyCostMetrics(
+                recruiter_name=recruiter_name,
+                month=_date,
+                value=random.randint(15000, 30000)
+            ))
+    return data
+
+
+def create_vacancy_cost_comparison_metrics(recruiter_name):
+    data = []
+    for year in (2021, 2022, 2023):
+        for month in (range(1, 13)):
+            for is_referral in (True, False):
+                _date = dt.date(year, month, 1)
+                data.append(VacancyCostComparisonMetrics(
+                    recruiter_name=recruiter_name,
+                    month=_date,
+                    value=random.randint(5000, 15000) if is_referral else random.randint(15000, 30000),
+                    is_referral=is_referral
+                ))
+    return data
+
+
 def create_employee(recruiter_id):
     date_started = fake.date_between(start_date='-3y', end_date='-1y')
     date_fired = random.choice([date_started + timedelta(days=random.randint(1, 365)), None])
@@ -247,10 +315,35 @@ async def populate_database() -> None:
         quality_metrics.extend(create_hire_quality_metrics(recruiter.name))
     session.add_all(quality_metrics)
 
-    quality_metrics = []
+    screen_time_metrics = []
     for recruiter in recruiters:
-        quality_metrics.extend(create_screen_time_metrics(recruiter.name))
-    session.add_all(quality_metrics)
+        screen_time_metrics.extend(create_screen_time_metrics(recruiter.name))
+    session.add_all(screen_time_metrics)
+
+    hire_time_metrics = []
+    for recruiter in recruiters:
+        hire_time_metrics.extend(create_hire_time_metrics(recruiter.name))
+    session.add_all(hire_time_metrics)
+
+    owner_satisfaction = []
+    for recruiter in recruiters:
+        owner_satisfaction.extend(create_satisfaction_metrics(recruiter.name))
+    session.add_all(owner_satisfaction)
+
+    average_candidate_to_vacancy = []
+    for recruiter in recruiters:
+        average_candidate_to_vacancy.extend(create_average_candidate_metrics(recruiter.name))
+    session.add_all(average_candidate_to_vacancy)
+
+    vacancy_cost = []
+    for recruiter in recruiters:
+        vacancy_cost.extend(create_vacancy_cost_metrics(recruiter.name))
+    session.add_all(vacancy_cost)
+
+    vacancy_cost_comparison = []
+    for recruiter in recruiters:
+        vacancy_cost_comparison.extend(create_vacancy_cost_comparison_metrics(recruiter.name))
+    session.add_all(vacancy_cost_comparison)
 
     employees = [create_employee(random.choice(recruiters).id) for _ in range(5000)]
     session.add_all(employees)
