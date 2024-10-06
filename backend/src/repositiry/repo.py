@@ -330,13 +330,22 @@ class Repository(RepositoryBase):
         query = query.order_by(model.month)
         return await self._all(query=query)
 
-    async def get_fired_employees(self, reference_date: datetime, six_months_ago: datetime) -> List[models.Employee]:
-        query = select(models.Employee).filter(
-            and_(
-                models.Employee.date_fired >= six_months_ago,
-                models.Employee.date_fired <= reference_date,
-            ),
-        )
+    async def get_fired_employees(
+        self,
+        date_end: datetime | None = None,
+        date_start: datetime | None = None,
+        recruiter_id: str | None = None,
+    ) -> List[models.Employee]:
+        query = select(models.Employee)
+        if date_end and date_start:
+            query = query.filter(
+                and_(
+                    models.Employee.date_fired >= date_start,
+                    models.Employee.date_fired <= date_end,
+                ),
+            )
+        if recruiter_id:
+            query = query.where(models.Employee.recruiter_id == int(recruiter_id))
         return await self._all(query=query)
 
     async def get_tasks(
