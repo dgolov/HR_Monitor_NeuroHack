@@ -25,9 +25,18 @@ async def create_candidate(
 
 @router.get("/")
 async def get_candidates(
-    repository: Repository = repo_dep,
+        status: str | None = None,
+        vacancy_id: int | None = None,
+        page: int | None = None,
+        offset: int | None = None,
+        repository: Repository = repo_dep
 ) -> list[schemas.Candidate]:
-    candidates_list = await repository.get_candidates()
+
+    candidates_list = await repository.get_candidates(
+        status=status,
+        vacancy_id=vacancy_id,
+        page=page,
+        offset=offset)
     return [schemas.Candidate.model_validate(candidate) for candidate in candidates_list]
 
 

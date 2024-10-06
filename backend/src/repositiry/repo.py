@@ -77,7 +77,6 @@ class Repository(RepositoryBase):
     vacancy_cost = models.VacancyCostMetrics
     average_candidate_to_vacancy = models.AverageCandidateToVacancyMetrics
 
-
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
         if role:
@@ -177,6 +176,8 @@ class Repository(RepositoryBase):
         recruiter_id: str | None = None,
         date_start: datetime | None = None,
         date_end: datetime | None = None,
+        page: int | None = 1,
+        offset: int | None = None,
     ) -> list[models.Candidate]:
         query = select(self.candidate)
         if vacancy_id:
@@ -200,6 +201,8 @@ class Repository(RepositoryBase):
                     self.vacancy.created_at <= date_end,
                 ),
             )
+        if offset:
+            query = await self._query_offset(query, offset, page)
         return await self._all(query=query)
 
     async def get_candidate_by_id(self, candidate_id: int) -> models.Candidate:
@@ -244,7 +247,7 @@ class Repository(RepositoryBase):
         if recruiter_name:
             query = query.where(self.hire_time.recruiter_name == recruiter_name)
         elif recruiter_id:
-            query = query.join(self.user).where(self.user.id == recruiter_id)
+            query = self.join_user_model(recruiter_id, query, self.hire_time)
         if date_start and date_end:
             query = query.where(
                 and_(
@@ -266,7 +269,7 @@ class Repository(RepositoryBase):
         if recruiter_name:
             query = query.where(self.screen_time.recruiter_name == recruiter_name)
         elif recruiter_id:
-            query = query.join(self.user).where(self.user.id == recruiter_id)
+            query = self.join_user_model(recruiter_id, query, self.screen_time)
         if date_start and date_end:
             query = query.where(
                 and_(
@@ -276,6 +279,11 @@ class Repository(RepositoryBase):
             )
         query = query.order_by(self.screen_time.month)
         return await self._all(query=query)
+
+    def join_user_model(self, recruiter_id: int, query: Select, model: models.Metrics) -> Select:
+        return query.join(self.user, self.user.name == model.recruiter_name).where(
+            self.user.id == recruiter_id,
+        )
 
     async def get_hire_quality_data(
         self,
@@ -288,7 +296,7 @@ class Repository(RepositoryBase):
         if recruiter_name:
             query = query.where(self.hire_quality.recruiter_name == recruiter_name)
         elif recruiter_id:
-            query = query.join(self.user).where(self.user.id == recruiter_id)
+            query = self.join_user_model(recruiter_id, query, self.hire_quality)
         if date_start and date_end:
             query = query.where(
                 and_(
@@ -310,7 +318,7 @@ class Repository(RepositoryBase):
         if recruiter_name:
             query = query.where(self.vacancy_cost.recruiter_name == recruiter_name)
         elif recruiter_id:
-            query = query.join(self.user).where(self.user.id == recruiter_id)
+            query = self.join_user_model(recruiter_id, query, self.vacancy_cost)
         if date_start and date_end:
             query = query.where(
                 and_(
@@ -403,7 +411,7 @@ class Repository(RepositoryBase):
         return await self._all_special(query=query)
 
     async def get_all_recruiters(self):
-        query = select(self.user).where(self.user.role=="recruiter")
+        query = select(self.user).where(self.user.role == "recruiter")
         return await self._all(query=query)
 
     async def get_average_candidate_to_vacancy(
