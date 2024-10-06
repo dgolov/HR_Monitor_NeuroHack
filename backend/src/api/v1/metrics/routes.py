@@ -170,78 +170,58 @@ async def vacancy_cost_comparison(
     return await repository.get_vacancy_cost_comparison_data(recruiter_name, date_start, date_end, recruiter_id)
 
 
-@router.get("/avarage-vacancy-cost")
-async def avarage_vacancy_cost(
-    recruiter_id: int | None = None,
-    date_start: datetime | None = None,
-    date_end: datetime | None = None,
-    repository: Repository = repo_dep,
-) -> dict:
-    """Средняя стоимость закрытия вакансий по годам и месяцам.
-
-    Пример ответа:
-    {
-    "Tiffany Woods": {
-    "2024": {
-      "1": {
-        "total_salary": 3839,
-        "vacancies_count": 3,
-        "vacancy_cost": 1279.6666666666667
-      },
-      "2": {
-        "total_salary": 3839,
-        "vacancies_count": 4,
-        "vacancy_cost": 959.75
-      },
-      "4": {
-        "total_salary": 3839,
-        "vacancies_count": 3,
-        "vacancy_cost": 1279.6666666666667
-      },
-      "5": {
-        "total_salary": 3839,
-        "vacancies_count": 3,
-        "vacancy_cost": 1279.6666666666667
-      },...
-    """
+@router.get("/average-vacancy-cost")
+async def average_vacancy_cost(
+        recruiter_id: int | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        repository: Repository = repo_dep,
+) -> schemas.VacancyCostResponse:
+    """Средняя стоимость закрытия вакансий по годам и месяцам."""
     closed_vacancies = await repository.get_vacancies(
         status="closed",
-        creator_id=None,
         recruiter_id=recruiter_id,
         date_start=date_start,
         date_end=date_end,
     )
+
     grouped_data = defaultdict(
         lambda: defaultdict(
-            lambda: defaultdict(
-                lambda: {
-                    "total_salary": 0,
-                    "vacancies_count": 0,
-                },
-            ),
+            lambda: {
+                "total_salary": 0,
+                "vacancies_count": 0,
+            },
         ),
     )
+
     for vacancy in closed_vacancies:
         if vacancy.close_at:
             year = vacancy.close_at.year
             month = vacancy.close_at.month
-            recruiter_id = int(vacancy.recruiter_id)
 
-            recruiter = await repository.get_user_by_id(recruiter_id)
+            recruiter = await repository.get_user_by_id(vacancy.recruiter_id)
             recruiter_salary = recruiter.salary
-            recruiter_name = recruiter.name
 
-            grouped_data[recruiter_name][year][month]["total_salary"] = recruiter_salary
-            grouped_data[recruiter_name][year][month]["vacancies_count"] += 1
+            grouped_data[year][month]["total_salary"] = recruiter_salary
+            grouped_data[year][month]["vacancies_count"] += 1
 
-    for recruiter_name in grouped_data:
-        for year in grouped_data[recruiter_name]:
-            for month in grouped_data[recruiter_name][year]:
-                grouped_data[recruiter_name][year][month]["vacancy_cost"] = (
-                    grouped_data[recruiter_name][year][month]["total_salary"]
-                    / grouped_data[recruiter_name][year][month]["vacancies_count"]
-                )
-    return grouped_data
+    result = {}
+
+    # Вычисление средней стоимости закрытия вакансий с округлением до 2 знаков
+    for year, months_data in grouped_data.items():
+        result[year] = schemas.VacanciesYearData(months={})
+        for month, data in months_data.items():
+            total_salary = data["total_salary"]
+            vacancies_count = data["vacancies_count"]
+            vacancy_cost = round(total_salary / vacancies_count, 2)
+
+            result[year].months[month] = schemas.VacanciesMonthData(
+                vacancies_count=vacancies_count,
+                vacancy_cost=vacancy_cost
+            )
+
+    # Возвращаем результат в формате Pydantic модели
+    return schemas.VacancyCostResponse(years=result)
 
 
 @router.get("/referal-part")

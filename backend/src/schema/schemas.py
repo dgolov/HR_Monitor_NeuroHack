@@ -214,3 +214,16 @@ class RecruiterMonthlyRatings(BaseModel):
 
 class RecruiterRatingsResponse(BaseModel):
     recruiter_data: Dict[str, RecruiterMonthlyRatings]
+
+
+class VacanciesMonthData(BaseModel):
+    vacancies_count: int
+    vacancy_cost: float
+
+
+class VacanciesYearData(BaseModel):
+    months: Dict[int, VacanciesMonthData]  # ключ — это номер месяца
+
+
+class VacancyCostResponse(BaseModel):
+    years: Dict[int, VacanciesYearData]  # ключ — это год
