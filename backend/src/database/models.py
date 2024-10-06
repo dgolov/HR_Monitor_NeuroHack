@@ -141,3 +141,11 @@ class Employee(Base):
     recruiter_id = Column(Integer, ForeignKey("user.id"))
 
     recruiter = relationship("User", back_populates="employees")
+
+
+class AverageCandidateToVacancyMetrics(Base):
+    __tablename__ = "average_candidate_to_vacancy_metrics"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    recruiter_name = Column(String(), ForeignKey("user.name"))
+    month = Column(Date)
+    value = Column(Float)
