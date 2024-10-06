@@ -34,6 +34,7 @@ services:
     volumes:
       - ./backend/alembic/versions:/app/alembic/versions
       - ./backend/logs:/app/logs
+      - ./backend/reports:/app/reports
     env_file:
       - ./backend/.env
     build:

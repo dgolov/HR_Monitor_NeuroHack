@@ -7,7 +7,8 @@ from src.api.v1 import (
     user_routes,
     vacancies_routes,
     vacancy_files_routes,
-    tasks_routes
+    tasks_routes,
+    reports_routes
 )
 from src.settings import logger
 from src.scripts.generate import generate_bd
@@ -22,7 +23,7 @@ router.include_router(vacancies_routes.router, tags=["vacancies"])
 router.include_router(vacancy_files_routes.router, tags=["vacancy_files"])
 router.include_router(metrics_routes.router, tags=["metrics"])
 router.include_router(tasks_routes.router, tags=["tasks"])
-
+router.include_router(reports_routes.router, tags=["reports"])
 
 @router.get("/health")
 def health_check() -> dict:

@@ -16,9 +16,9 @@ class Settings(BaseSettings):
 app_config = Settings()
 
 log_directory = "./logs"
-
+report_directory = "./reports"
 Path(log_directory).mkdir(parents=True, exist_ok=True)
-
+Path(report_directory).mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
