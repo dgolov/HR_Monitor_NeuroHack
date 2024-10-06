@@ -248,9 +248,11 @@ class Repository(RepositoryBase):
         recruiter_id: int | None = None,
         date_start: datetime | None = None,
         date_end: datetime | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> list[models.HireTimeMetrics]:
         model = self.hire_time
-        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
     async def get_screen_time_data(
         self,
@@ -258,9 +260,11 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> List[models.ScreenTimeMetrics]:
         model = self.screen_time
-        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
     async def get_hire_quality_data(
         self,
@@ -268,9 +272,11 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> List[models.HireQualityMetrics]:
         model = self.hire_quality
-        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
     async def get_owner_satisfaction(
         self,
@@ -278,9 +284,11 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> List[models.OwnerSatisfactionMetrics]:
         model = self.owner_satisfaction
-        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
     async def get_vacancy_cost_data(
         self,
@@ -288,9 +296,11 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> list[models.VacancyCostMetrics]:
         model = self.vacancy_cost
-        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
     async def get_vacancy_cost_comparison_data(
         self,
@@ -298,9 +308,11 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> list[models.VacancyCostComparisonMetrics]:
         model = self.vacancy_cost_comparison
-        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
     def join_user_model(self, recruiter_id: int, query: Select, model: models.Metrics) -> Select:
         return query.join(self.user, self.user.name == model.recruiter_name).where(
@@ -314,6 +326,8 @@ class Repository(RepositoryBase):
         date_start: datetime | None = None,
         date_end: datetime | None = None,
         recruiter_id: int | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> list[models.Metrics]:
         query = select(model)
         if recruiter_name:
@@ -327,6 +341,8 @@ class Repository(RepositoryBase):
                     model.month <= date_end,
                 ),
             )
+        if page and offset:
+            query = query.limit(int(offset)).offset(int(offset) * (int(page) - 1))
         query = query.order_by(model.month)
         return await self._all(query=query)
 
@@ -397,18 +413,18 @@ class Repository(RepositoryBase):
         return await self._all(query=query)
 
     async def get_fired_employees_by_month(
-            self,
-            first_day_of_month: datetime,
-            first_day_next_month: datetime,
-            six_months_ago: datetime,
-            recruiter_id: Optional[int] = None,
+        self,
+        first_day_of_month: datetime,
+        first_day_next_month: datetime,
+        six_months_ago: datetime,
+        recruiter_id: Optional[int] = None,
     ) -> List[models.Employee]:
         query = select(models.Employee).filter(
             and_(
                 models.Employee.date_fired >= first_day_of_month,
                 models.Employee.date_fired < first_day_next_month,
                 models.Employee.date_fired >= six_months_ago,
-            )
+            ),
         )
 
         if recruiter_id is not None:
@@ -439,6 +455,8 @@ class Repository(RepositoryBase):
         recruiter_id: int | None = None,
         date_start: datetime | None = None,
         date_end: datetime | None = None,
+        page: str | None = None,
+        offset: str | None = None,
     ) -> list[models.HireTimeMetrics]:
         query = select(self.average_candidate_to_vacancy)
         if recruiter_name:
@@ -452,5 +470,7 @@ class Repository(RepositoryBase):
                     self.average_candidate_to_vacancy.month <= date_end,
                 ),
             )
+        if page and offset:
+            query = query.limit(int(offset)).offset(int(offset) * (int(page) - 1))
         query = query.order_by(self.average_candidate_to_vacancy.month)
         return await self._all(query=query)

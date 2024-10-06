@@ -64,9 +64,11 @@ async def hire_time(
     date_start: datetime | None = None,
     date_end: datetime | None = None,
     repository: Repository = repo_dep,
+    page: str = "1",
+    offset: str | None = None,
 ) -> list[schemas.HireTimeMetrics]:
     """Время закрытия вакансии по рекрутеру за период."""
-    return await repository.get_hire_time_data(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_hire_time_data(recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
 
 @router.get("/screen-time")
@@ -75,10 +77,12 @@ async def screen_time(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
+    page: str = "1",
+    offset: str | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.ScreenTimeMetrics]:
     """Скорость скрининга по рекрутеру за период."""
-    return await repository.get_screen_time_data(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_screen_time_data(recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
 
 @router.get("/hire-quality")
@@ -87,13 +91,15 @@ async def hire_quality(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
+    page: str = "1",
+    offset: str | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.HireQualityMetrics]:
     """Качество найма по рекрутеру за период.
 
     Считается как средняя стоимость закрытия вакансии деленная на кол-во отработанных дней сотрудником.
     """
-    return await repository.get_hire_quality_data(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_hire_quality_data(recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
 
 @router.get("/manager-satisfaction")
@@ -102,13 +108,15 @@ async def owner_satisfaction(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
+    page: str = "1",
+    offset: str | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.OwnerSatisfaction]:
     """Удовлетворенность менеджеров команд качеством сотрудников, по рекрутеру за период.
 
     Считается как средняя оценка тимлидом работы сотрудников по итогам месяца.
     """
-    return await repository.get_owner_satisfaction(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_owner_satisfaction(recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
 
 @router.get("/average-manager-satisfaction")
@@ -152,10 +160,12 @@ async def vacancy_cost(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
+    page: str = "1",
+    offset: str | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.VacancyCostMetrics]:
     """Средняя стоимость закрытия вакансии по рекрутеру за период."""
-    return await repository.get_vacancy_cost_data(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_vacancy_cost_data(recruiter_name, date_start, date_end, recruiter_id, page, offset)
 
 
 @router.get("/vacancy-cost-comparison")
@@ -164,10 +174,14 @@ async def vacancy_cost_comparison(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
+    page: str = "1",
+    offset: str | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.VacancyCostMetricsComparison]:
     """Сравнение стоимости закрытия вакансии по рефералу и без, по рекрутеру за период."""
-    return await repository.get_vacancy_cost_comparison_data(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_vacancy_cost_comparison_data(
+        recruiter_name, date_start, date_end, recruiter_id, page, offset
+    )
 
 
 @router.get("/avarage-vacancy-cost")
@@ -422,7 +436,11 @@ async def get_average_candidate_to_vacancy_history(
     recruiter_id: int | None = None,
     date_start: datetime | None = None,
     date_end: datetime | None = None,
+    page: str = "1",
+    offset: str | None = None,
     repository: Repository = repo_dep,
 ) -> list[schemas.HireTimeMetrics]:
     """Время закрытия вакансии по рекрутеру за период."""
-    return await repository.get_average_candidate_to_vacancy(recruiter_name, date_start, date_end, recruiter_id)
+    return await repository.get_average_candidate_to_vacancy(
+        recruiter_name, date_start, date_end, recruiter_id, page, offset
+    )
