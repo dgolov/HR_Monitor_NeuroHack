@@ -403,7 +403,7 @@ class Repository(RepositoryBase):
         end: datetime,
         status: str,
         hr_id: int,
-        order_by: str,
+        order_by: str = "priority",
     ) -> List[models.RecruiterTask]:
         order_by_columns = {
             "priority": self.recruiter_task.priority,
@@ -411,7 +411,7 @@ class Repository(RepositoryBase):
             "status": self.recruiter_task.status,
         }
 
-        query = select(self.recruiter_task).where(recruiter_id=hr_id).order_by(order_by_columns.get(order_by))
+        query = select(self.recruiter_task).where(self.recruiter_task.recruiter_id==hr_id).order_by(order_by_columns.get(order_by))
         if start:
             query = query.where(self.recruiter_task.created_at >= start)
         if end:
