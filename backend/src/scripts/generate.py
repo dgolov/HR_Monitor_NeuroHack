@@ -50,7 +50,7 @@ def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
         uuid=uuid4(),
         title=fake.job(),
         description=fake.text(),
-        status=random.choice(["open", "closed", "in progress"]),
+        status=status,
         created_at=created_at,
         open_at=created_at,
         updated_at=updated_at,
