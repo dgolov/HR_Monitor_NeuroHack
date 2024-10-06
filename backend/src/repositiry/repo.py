@@ -77,6 +77,7 @@ class Repository(RepositoryBase):
     vacancy_cost = models.VacancyCostMetrics
     vacancy_cost_comparison = models.VacancyCostComparisonMetrics
     average_candidate_to_vacancy = models.AverageCandidateToVacancyMetrics
+    owner_satisfaction = models.OwnerSatisfactionMetrics
 
     async def get_users(self, role: Optional[str] = None) -> List[models.User]:
         query = select(self.user)
@@ -271,6 +272,16 @@ class Repository(RepositoryBase):
         model = self.hire_quality
         return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
 
+    async def get_owner_satisfaction(
+        self,
+        recruiter_name: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        recruiter_id: int | None = None,
+    ) -> List[models.OwnerSatisfactionMetrics]:
+        model = self.owner_satisfaction
+        return await self.get_metrics_data(model, recruiter_name, date_start, date_end, recruiter_id)
+
     async def get_vacancy_cost_data(
         self,
         recruiter_name: str | None = None,
@@ -363,7 +374,11 @@ class Repository(RepositoryBase):
             "status": self.recruiter_task.status,
         }
 
-        query = select(self.recruiter_task).where(self.recruiter_task.recruiter_id==hr_id).order_by(order_by_columns.get(order_by))
+        query = (
+            select(self.recruiter_task)
+            .where(self.recruiter_task.recruiter_id == hr_id)
+            .order_by(order_by_columns.get(order_by))
+        )
         if start:
             query = query.where(self.recruiter_task.created_at >= start)
         if end:

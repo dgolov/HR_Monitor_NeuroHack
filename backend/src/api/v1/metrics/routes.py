@@ -96,6 +96,21 @@ async def hire_quality(
     return await repository.get_hire_quality_data(recruiter_name, date_start, date_end, recruiter_id)
 
 
+@router.get("/owner-satisfaction")
+async def owner_satisfaction(
+    recruiter_name: str | None = None,
+    recruiter_id: int | None = None,
+    date_start: datetime | None = None,
+    date_end: datetime | None = None,
+    repository: Repository = repo_dep,
+) -> list[schemas.OwnerSatisfaction]:
+    """Удовлетворенность наймом по рекрутеру за период.
+
+    Считается как средняя оценка тимлидом работы соотрудника.
+    """
+    return await repository.get_owner_satisfaction(recruiter_name, date_start, date_end, recruiter_id)
+
+
 @router.get("/vacancy-cost")
 async def vacancy_cost(
     recruiter_name: str | None = None,

@@ -137,6 +137,10 @@ class HireQualityMetrics(Metrics):
     __tablename__ = "hire_quality_metrics"
 
 
+class OwnerSatisfactionMetrics(Metrics):
+    __tablename__ = "owner_satisfaction_metrics"
+
+
 class HireTimeMetrics(Metrics):
     __tablename__ = "hire_time_metrics"
 
