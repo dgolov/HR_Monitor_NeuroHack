@@ -25,6 +25,20 @@ async def get_task(
         end: datetime | None = None,
         repository: Repository = repo_dep,
 ):
+    """
+
+    :param metric_by_hr:
+    metric to build report should be one of
+        'screen-time'
+        'hire-quality'
+        'hire-time'
+        'owner-satisfaction'
+        'vacancy-cost'
+        'vacancy-cost-comparison'
+    :param hr_names:  string like "John Doe, Jimmy Carr"
+    :param start: 2024-01-01
+    :param end: 2024-01-01
+    """
     report_directory = "./reports"
     filename = f'./{metric_by_hr}_{start}_{end}.xlsx'
     full_filepath = os.path.join(report_directory, filename)
