@@ -35,6 +35,11 @@ const routes = [
     name: "hire-quality",
     component: () => import("@/views/metrics/hireQuality.vue"),
   },
+  {
+    path: "/metrics/average-hire-time",
+    name: "average-hire-time",
+    component: () => import("@/views/metrics/averageHire.vue"),
+  },
 ];
 
 const router = createRouter({

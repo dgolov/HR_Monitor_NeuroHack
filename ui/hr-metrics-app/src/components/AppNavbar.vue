@@ -24,7 +24,7 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="metricsDropdown">
               <li>
-                <a class="dropdown-item" href="#">
+                <a class="dropdown-item" href="/metrics/average-hire-time">
                   <i class="fas fa-chart-bar me-1"></i> Среднее количество дней на закрытие вакансий
                 </a>
               </li>
