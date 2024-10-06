@@ -125,7 +125,7 @@ class Repository(RepositoryBase):
                 and_(self.vacancy.close_at >= date_start, self.vacancy.close_at <= date_end),
             )
         if offset:
-            query = query.limit(offset).offset(offset * (page - 1))
+            query = query.limit(offset).offset(offset * (int(page) - 1))
         return await self._all(query=query)
 
     async def get_vacancy_by_id(self, vacancy_id: int) -> models.Vacancy:
