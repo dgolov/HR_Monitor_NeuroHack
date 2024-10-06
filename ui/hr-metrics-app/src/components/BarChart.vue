@@ -3,17 +3,39 @@
   <hr/>
   <div class="container mt-4">
     <div class="row mt-4">
-      <div class="form-group">
-        <label for="yearSelector">Выберите рекуртера:</label>
-        <select id="yearSelector" class="form-control mt-1" v-model="itemRecruter" @change="updateData">
-          <option v-for="recruter in recruters" :key="recruter" :value="recruter">{{ recruter.name }}</option>
-        </select>
+      <div class="col-md-6">
+        <div v-if="itemRecruter" class="d-flex align-items-center recruiter-card p-3 shadow-sm">
+          <div class="recruiter-info">
+            <h5>{{ itemRecruter.name }}</h5>
+            <p><strong>Телефон:</strong> {{ itemRecruter.phone }}</p>
+            <p><strong>Email:</strong> {{ itemRecruter.email }}</p>
+            <p><strong>Грейд:</strong> 5 / 5</p>
+            <p><strong>Оценка эффективности:</strong> 4 / 5</p>
+    
+          </div>
+          <div class="recruiter-photo ms-4">
+            <img src="@/static/0471dab9-d6c5-4d64-a002-59de01a881db.webp" 
+              alt="Фото рекрутера" 
+              class="img-fluid rounded-circle" 
+              style="width: 120px; height: 120px;" />
+          </div>
+        </div>
       </div>
-      <div class="form-group mt-3">
-        <label for="yearSelector">Выберите год:</label>
-        <select id="yearSelector" class="form-control mt-1" v-model="selectedYear" @change="updateChartData">
-          <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-        </select>
+      <div class="col-md-6">
+        <div class="form-group mb-3">
+          <label for="recruterSelector">Выберите рекрутера:</label>
+          <select id="recruterSelector" class="form-control mt-1" v-model="itemRecruter" @change="updateData">
+            <option v-for="recruter in recruters" :key="recruter" :value="recruter">{{ recruter.name }}</option>
+          </select>
+        </div>
+
+        <!-- Форма для выбора года -->
+        <div class="form-group">
+          <label for="yearSelector">Выберите год:</label>
+          <select id="yearSelector" class="form-control mt-1" v-model="selectedYear" @change="updateChartData">
+            <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
+          </select>
+        </div>
       </div>
       <div class="col-md-6 mb-4">
         <div class="card">
@@ -371,8 +393,44 @@ export default {
 
 
 <style scoped>
+.recruiter-card {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recruiter-info h5 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.recruiter-info p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.recruiter-photo img {
+  border-radius: 50%;
+  border: 2px solid #ccc;
+}
+
+.form-control {
+  border-radius: 5px;
+}
+
 .card {
   margin-top: 20px;
   height: 380px;
+  border-radius: 10px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+h5 {
+  font-weight: bold;
 }
 </style>
