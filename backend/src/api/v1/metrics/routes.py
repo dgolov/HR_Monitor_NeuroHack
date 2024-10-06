@@ -261,7 +261,7 @@ async def get_fired_employees_count(
     )
 
 
-@router.get("/soon_fired_summary")
+@router.get("/soon-fired-summary")
 async def get_fired_employees_for_last_3_years(
     repository: Repository = repo_dep,
 ):
@@ -300,7 +300,7 @@ async def get_fired_employees_for_last_3_years(
     return summary
 
 
-@router.get("/average_manager_rating")
+@router.get("/average-manager-rating")
 async def get_average_manager_rating(
     year: int,
     repository: Repository = repo_dep,
