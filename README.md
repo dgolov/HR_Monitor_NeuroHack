@@ -1,5 +1,10 @@
 # NeuroHack HR Monitor
 
+Проект выполняемый в рамках хакатона T1 Хакатон в Нижнем Новгороде
+
+https://codenrock.com/contests/impulse-hackt1-nizhny-novgorod#/
+--
+
 Платформа для мониторинга качества работы рекрутеров
 
 93.183.90.209
