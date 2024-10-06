@@ -24,28 +24,44 @@ fake = Faker()
 
 session = async_session_maker()
 
+CLOSED_VACANCIES = []
 
-def create_candidate(vacancy_id):
+
+def create_candidate(vacancy_id, is_referal, vacancy_status):
+    if vacancy_status == 'closed' and vacancy_id not in CLOSED_VACANCIES:
+        status = 'hired'
+        CLOSED_VACANCIES.append(vacancy_id)
+    elif vacancy_status in ["open", "in progress"]:
+        status = random.choice(["applied", "interviewed", "rejected", "rejected", "rejected"])
+    else:
+        status = 'rejected'
+
     return Candidate(
         uuid=uuid4(),
         name=fake.name(),
-        is_referral=random.choice([True, False]),
+        is_referral=is_referal if status == 'hired' else random.choice([True, False, False, False, False, False, False]),
         other_info={"hobbies": fake.words(3), "experience": fake.job()},
         resume_link=fake.url(),
-        status=random.choice(["applied", "interviewed", "hired", "rejected", "rejected", "rejected"]),
+        status=status,
         vacancy_id=vacancy_id,
     )
 
 
 def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
     created_at = fake.date_between(start_date='-3y', end_date='-1y')
-    updated_at = created_at + timedelta(days=random.choice(list(range(30, 50))))
+    is_referral = random.choice([True, False, False, False, False])
+    update_range = (1, 7) if is_referral else (10, 20)
+    updated_at = created_at + timedelta(days=random.choice(list(range(*update_range))))
     closed_at = updated_at + timedelta(days=random.choice(list(range(10, 20))))
+    closing_cost = (closed_at - created_at).days * 5000
     status = random.choice(["open", "closed", "in progress"])
     viewed_count = random.randint(0, 1000)
     responded_count = viewed_count - random.randint(0, 300) or 0
+
     if status != 'closed':
         closed_at = None
+        closing_cost = None
+        is_referral = None
     return Vacancy(
         uuid=uuid4(),
         title=fake.job(),
@@ -60,6 +76,8 @@ def create_vacancy(recruiter_id: int, vacancy_file_id: int) -> Vacancy:
         vacancy_file_id=vacancy_file_id,
         creator_id=recruiter_id,
         recruiter_id=recruiter_id,
+        closing_cost=closing_cost,
+        is_referral=is_referral
     )
 
 
@@ -182,8 +200,8 @@ async def populate_database() -> None:
 
     query = await session.execute(select(Vacancy))
     vacancies = query.scalars().all()
-    vacancy_ids = iter([vacancy.id for vacancy in vacancies] * 5)
-    candidates = [create_candidate(next(vacancy_ids)) for _ in range(15000)]
+    vacancy_ids = iter([(vacancy.id, vacancy.is_referral, vacancy.status) for vacancy in vacancies] * 5)
+    candidates = [create_candidate(*next(vacancy_ids)) for _ in range(15000)]
     session.add_all(candidates)
     await session.commit()
 
