@@ -294,6 +294,7 @@ class Repository(RepositoryBase):
                     self.hire_quality.month <= date_end,
                 ),
             )
+        query = query.order_by(self.hire_quality.month)
         return await self._all(query=query)
 
     async def get_vacancy_cost_data(

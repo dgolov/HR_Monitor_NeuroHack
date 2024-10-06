@@ -2,7 +2,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter
-from pydantic.v1.class_validators import all_kwargs
 
 from src.api.v1.deps import repo_dep
 from src.repositiry.repo import Repository
@@ -262,7 +261,7 @@ async def get_fired_employees_count(
     )
 
 
-@router.get("/soon_fired_summary")
+@router.get("/soon-fired-summary")
 async def get_fired_employees_for_last_3_years(
     repository: Repository = repo_dep,
 ):
@@ -301,7 +300,7 @@ async def get_fired_employees_for_last_3_years(
     return summary
 
 
-@router.get("/average_manager_rating")
+@router.get("/average-manager-rating")
 async def get_average_manager_rating(
     year: int,
     repository: Repository = repo_dep,
@@ -336,29 +335,26 @@ async def get_average_manager_rating(
     return schemas.RecruiterRatingsResponse(recruiter_data=recruiter_data)
 
 
-@router.get("/average_candidate_to_vacancy")
+@router.get("/average-candidate-to-vacancy")
 async def get_average_candidate_to_vacancy(
     reference_date: datetime,
     repository: Repository = repo_dep,
-):
-    """Среднне кол-во откликов на закрытую вокансии за 6 месяцев от референс_дэйт"""
-    # Вычисляем дату 6 месяцев назад от заданной даты
+) -> dict[str, int]:
+    """Среднне кол-во откликов на закрытую вокансии за 6 месяцев от референс_дэйт."""
     six_months_ago = reference_date - timedelta(days=6 * 30)
-    # Запрос для получения всех закрытых вакансий за последние 6 месяцев
     all_recruiters = await repository.get_all_recruiters()
     average_replays_vacancy_by_recruiter = {}
 
     for recruiter in all_recruiters:
         closed_vacancies_last_six_month = await repository.get_vacancies(
-                                                    date_start=six_months_ago,
-                                                    date_end=reference_date,
-                                                    recruiter_id=recruiter.id
+            date_start=six_months_ago,
+            date_end=reference_date,
+            recruiter_id=recruiter.id,
         )
 
-        # Подсчитываем кол-во кандидатов на 1 вакансию
-
-        all_candidates = [len(await repository.get_candidates(vacancy_id=vacancy.id))
-                             for vacancy in closed_vacancies_last_six_month]
+        all_candidates = [
+            len(await repository.get_candidates(vacancy_id=vacancy.id)) for vacancy in closed_vacancies_last_six_month
+        ]
         try:
             average_candidate_to_vacancy = sum(all_candidates) / len(closed_vacancies_last_six_month)
         except ZeroDivisionError:
